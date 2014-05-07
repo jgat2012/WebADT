@@ -10,8 +10,15 @@
 				<div class="col-md-5">
 					<div class="form-group">
 				      <label for="facility_code">Facility</label>
-				      <select id="facility_code" name="facility_code" class="form-control">
+				      <select id="facility_code" name="facility_code" class="form-control" required>
 				        <option value="0">-- Select Facility --</option>
+				        <?php 
+				          foreach($facilities as $facility){
+				        ?>
+                           <option value="<?php echo $facility['facility_code'];?>"><?php echo $facility['facility_name']; ?></option>
+                        <?php
+				          }
+				        ?>
 				      </select>
 				    </div>
 				    <div class="form-group">
@@ -20,6 +27,13 @@
 					      <div class="col-md-5">
 						      <select id="ccc_pharmacy" name="ccc_pharmacy" class="form-control">
 						        <option value="0">-- Select Pharmacy --</option>
+						        <?php 
+						          foreach($stores as $store){
+						        ?>
+		                           <option value="<?php echo $store['ccc_id'];?>"><?php echo $store['ccc_name']; ?></option>
+		                        <?php
+						          }
+						        ?>
 						      </select>
 						  </div>
 						  <div class="col-md-1">
@@ -36,17 +50,25 @@
 				      <label for="source_database">Database</label>
 				      <select id="source_database" name="source_database" class="form-control">
 				        <option value="0">-- Select Database --</option>
+				        <?php 
+				          foreach($databases as $database){
+				        ?>
+                           <option value="<?php echo $database['Database'];?>"><?php echo $database['Database']; ?></option>
+                        <?php
+				          }
+				        ?>
 				      </select>
 				    </div>
 				    <div class="form-group">
 	                    <label for="table">Tables</label><br />
 						<select class=" form-control multiselect col-md-10" id="table" name="table" multiple="multiple" style=''>
-						  <option value="cheese">Cheese</option>	
-						  <option value="tomatoes">Tomatoes</option>
-						  <option value="mozarella">Mozzarella</option>
-						  <option value="mushrooms">Mushrooms</option>
-						  <option value="pepperoni">Pepperoni</option>
-						  <option value="onions">Onions</option>
+				        <?php 
+				          foreach($tables as $table=>$table_config){
+				        ?>
+                           <option value="<?php echo $table;?>"><?php echo $table; ?></option>
+                        <?php
+				          }
+				        ?>
 						</select>
 	                </div>
 				</div>
