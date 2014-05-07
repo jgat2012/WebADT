@@ -2,7 +2,7 @@
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
 
-class Login extends MY_Controller {
+class Migration extends MY_Controller {
 
 	function __construct() {
 		parent::__construct();
@@ -11,8 +11,10 @@ class Login extends MY_Controller {
 	public function index() {
 		$data['hide_menu']='';
 		$data['hide_sidemenu']='';
-		$data['content_view'] = 'users/login';
-		echo Modules::run('template/template/default_load',$data);
+		$data['content_view'] = 'user/login';
+		$data['title'] = 'webADT | Login';
+		$this -> load -> module('template');
+		$this -> template -> default_load($data);
 	}
 
 }
