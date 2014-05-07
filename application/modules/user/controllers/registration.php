@@ -11,8 +11,12 @@ class Login extends MY_Controller {
 	public function index() {
 		$data['hide_menu']='';
 		$data['hide_sidemenu']='';
-		$data['content_view'] = 'users/login';
+		$data['content_view'] = 'user/registration';
 		echo Modules::run('template/template/default_load',$data);
+	}
+	
+	public function save(){// Save user details 
+			
 	}
 
 }
