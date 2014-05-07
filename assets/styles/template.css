@@ -37,3 +37,13 @@ text-align:center;
 .align_center{
 	margin:0 auto;
 }
+
+.widget-support-tickets .ticket-label {
+display: block;
+float: right;
+font-size: 10px;
+line-height: 18px;
+margin: 2px 0 0;
+padding: 0 5px;
+position: relative;
+}
