@@ -1,4 +1,5 @@
 <?php
+
 use Doctrine\Common\ClassLoader, Doctrine\ORM\Configuration, Doctrine\ORM\EntityManager, Doctrine\DBAL\Types\Type, Doctrine\Common\Cache\ArrayCache, Doctrine\DBAL\Logging\EchoSqlLogger;
 
 define('DEBUGGING', FALSE);

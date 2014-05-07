@@ -13,6 +13,9 @@
 
 	<!-- BOOTSTRAP JS -->		
 	<script src="<?php echo base_url();?>assets/scripts/bootstrap/bootstrap.min.js"></script>
+	
+	<!-- BOOTSTRAP MULTI SELECT JS -->		
+	<script src="<?php echo base_url();?>assets/scripts/bootstrap/bootstrap-multiselect.js"></script>
 
 	<!-- CUSTOM NOTIFICATION -->
 	<script src="<?php echo base_url();?>assets/scripts/notification/SmartNotification.min.js"></script>
@@ -49,7 +52,10 @@
 		<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download</h1>
 		
 	<![endif]-->
-
+	
+	<!-- BOOTSTRAP MIGRATION JS -->		
+	<script src="<?php echo base_url();?>assets/scripts/migration.js"></script>
+	
 	<!-- MAIN APP JS FILE -->
 	<script src="<?php echo base_url();?>assets/scripts/general.js"></script>
 
@@ -104,4 +110,18 @@
 	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 	  })();
 	
+	</script>
+	
+	<!-- Initialize the multi select plugin: -->
+	<script type="text/javascript">
+	  $(document).ready(function() {
+	    $('.multiselect').multiselect({
+			includeSelectAllOption : true,
+			maxHeight : 300,
+			enableFiltering : true,
+			filterBehavior : 'both',
+			enableCaseInsensitiveFiltering : true,
+			filterPlaceholder : 'Search'
+		});
+	  });
 	</script>
