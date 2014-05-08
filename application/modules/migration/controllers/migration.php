@@ -658,6 +658,18 @@ class Migration extends MY_Controller {
 		//response
 		echo $response;
 	}
+	
+	public function checkDB($dbname) {//Check if database selected can be migrated
+		$sql = "show tables from $dbname like '%tblarvdrugstockmain%';";
+		$query = $this -> db -> query($sql);
+		$results = $query -> result_array();
+		if ($results) {//If database can be migrated
+			$temp = 1;
+		} else {
+			$temp = 0;
+		}
+		echo $temp;
+	}
 
 	public function base_params($data){
 		$data['hide_sidemenu']='';

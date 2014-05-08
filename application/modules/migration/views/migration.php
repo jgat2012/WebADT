@@ -10,8 +10,8 @@
 				<div class="col-md-5">
 					<div class="form-group">
 				      <label for="facility_code">Facility</label>
-				      <select id="facility_code" name="facility_code" class="form-control" required>
-				        <option value="0">-- Select Facility --</option>
+				      <select id="facility_code" name="facility_code" class="form-control" >
+				        <option value=""> Select Facility </option>
 				        <?php 
 				          foreach($facilities as $facility){
 				        ?>
@@ -21,12 +21,12 @@
 				        ?>
 				      </select>
 				    </div>
-				    <div class="form-group">
+				    <div class="form-group" id="fg_ccc_pharmacy">
 				      <label for="ccc_pharmacy">Pharmacy</label>
 				      <div class="row">
 					      <div class="col-md-5">
 						      <select id="ccc_pharmacy" name="ccc_pharmacy" class="form-control">
-						        <option value="0">-- Select Pharmacy --</option>
+						        <option value=""> Select Pharmacy </option>
 						        <?php 
 						          foreach($stores as $store){
 						        ?>
@@ -49,7 +49,7 @@
 					<div class="form-group">
 				      <label for="source_database">Database</label>
 				      <select id="source_database" name="source_database" class="form-control">
-				        <option value="0">-- Select Database --</option>
+				        <option value=""> Select Database </option>
 				        <?php 
 				          foreach($databases as $database){
 				        ?>
@@ -60,8 +60,8 @@
 				      </select>
 				    </div>
 				    <div class="form-group">
-	                    <label for="table">Tables</label><br />
-						<select class=" form-control multiselect col-md-10" id="table" name="table" multiple="multiple" style=''>
+	                    <label for="table" id="lbltable" name="lbltable">Tables</label><br />
+						<select class=" form-control multiselect col-md-10" id="table" name="table" multiple="multiple" required="required">
 				        <?php 
 				          foreach($tables as $table=>$table_config){
 				        ?>
@@ -75,7 +75,7 @@
 			</div>
 			<div class="panel-footer">
 				<div class="form-group">
-					<button type="submit" class="btn btn-primary">Start Migration</button>
+					<button type="submit" id="migrate_btn" class="btn btn-primary">Start Migration</button>
 				</div>
 			</div>
 	  	</div>
