@@ -52,6 +52,7 @@ class Migration extends MY_Controller {
  	            	'name',
  	            	'active',
  	            	'ccc_store_sp'),
+ 	             'conditions'=>'',
  	             'update'=>array()
  	            ),
 			 'Drug Destination'=>array(
@@ -65,17 +66,19 @@ class Migration extends MY_Controller {
 			 		'name',
 			 		'active',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 	'conditions'=>'WHERE destination IS NOT NULL',
+ 	            'update'=>array()
 			 	),
 			 'Drug Unit'=>array(
 			 	'source'=>'tblunit',
 			 	'source_columns'=>array(
-			 		'Name',
+			 		'unit',
  	            	$ccc_pharmacy),
 			 	'destination'=>'drug_unit',
 			 	'destination_columns'=>array(
-			 		'unit',
+			 		'Name',
  	            	'ccc_store_sp'),
+			 	 'conditions'=>'',
  	             'update'=>array()
 			 	),
 			 'Drug Generic Name' =>array(
@@ -582,15 +585,10 @@ class Migration extends MY_Controller {
 
 	public function migrate(){
 		//get posted data
-		/*$facility_code=$this->input->post('facility_code',TRUE);
+		$facility_code=$this->input->post('facility_code',TRUE);
 		$ccc_pharmacy=$this->input->post('ccc_pharmacy',TRUE);
 		$source_database=$this->input->post('source_database',TRUE);
-		$table=$this->input->post('table',TRUE);*/
-
-	    $facility_code='13023';
-		$ccc_pharmacy='2';
-		$source_database='test';
-		$table='Drug Source';
+		$table=$this->input->post('table',TRUE);
 
 		//retrieve table data from tables array
 		$config=$this->mapping($facility_code,$ccc_pharmacy,$table);
@@ -598,6 +596,7 @@ class Migration extends MY_Controller {
 		$source_columns=implode(",", $config['source_columns']);
 		$destination_table=$config['destination'];
 		$destination_columns=implode(",", $config['destination_columns']);
+		$conditions=$config['conditions'];
 		$updates=$config['update'];
 
 		//check migration log for last value migrated
@@ -608,45 +607,57 @@ class Migration extends MY_Controller {
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
 		$offset=0;
+		$last_index=0;
 		$count=0;
 		$migration_id=null;
 		if($results){
-		  $offset = $results[0]['last_index'];
+		  $last_index = $results[0]['last_index'];
+		  $offset=$last_index;
 		  $count = $results[0]['count'];
 		  $migration_id=$results[0]['id'];
+	    }
+
+         //set limits  
+	    $limit=" LIMIT ".$offset.",18446744073709551615";
+	    if($destination_table=="patient_visit" || $destination_table=="drug_stock_movement"){
+	    	//set limit to 10000 for patient_visit and drug_stock_movement tables
+	    	$limit=" LIMIT 10000";
 	    }
 
 		//generate sql and execute
 		$sql="INSERT IGNORE INTO ".$destination_table."(".$destination_columns.")";
 		$sql.="SELECT ".$source_columns; 
-		$sql.=" FROM ".$source_database.".".$source_table." LIMIT ".$offset.",18446744073709551615";
+		$sql.=" FROM ".$source_database.".".$source_table;
+		$sql.=" ".$conditions.$limit;
         $this->db->query($sql);
+        
+    	//count records in source table
+		$sql = "SELECT COUNT(*) as total FROM $source_database.$source_table $conditions";
+	    $query = $this -> db -> query($sql);
+	    $results = $query -> result_array();
+	    if($results){
+	      $total =$results[0]['total'];
+	      $last_index =$results[0]['total'];
+	      if($last_index==$count){
+              $response="Migration[".$table."] Failed:All data is already migrated!";
+	      }else{
+	      	  $response="Migration[".$table."] Success:Data migrated from source(".$source_table.") to destination(".$destination_table.")!";
+	      }
+	      $count =$results[0]['total'];
+	    }else{
+	    	//response if failed not data in source table
+          $response="Migration[".$table."] Failed:No data is present at source table!";
+	    }
 
 		//update migration log
 		if($migration_id !=null){
-			//count records in source table
-			$sql = "SELECT COUNT(*) as total FROM $source_database.$source_table";
-		    $query = $this -> db -> query($sql);
-		    $results = $query -> result_array();
-		    if($results){
-		      $last_index =$results[0]['total'];
-		      if($last_index==$count){
-                  $response="Migration[".$table."] Failed:All data is already migrated!";
-		      }else{
-		      	  $response="Migration[".$table."] Success:Data migrated from source(".$source_table.") to destination(".$destination_table.")!";
-		      }
-		      $count =$results[0]['total'];
-		    }else{
-		    	//response if failed not data in source table
-              $response="Migration[".$table."] Failed:No data is present at source table!";
-		    }
-            $migartion_log=array(
+            $migration_log=array(
 							'last_index'=>$last_index,
 							'count'=>$count);
 			$this -> db -> where('id', $migration_id);
-		    $this -> db -> update('migration_log', $migartion_log);
+		    $this -> db -> update('migration_log', $migration_log);
 		}else{
-			$migartion_log=array(
+			$migration_log=array(
 							'source'=>$destination_table,
 							'last_index'=>$last_index,
 							'count'=>$count,
@@ -662,7 +673,10 @@ class Migration extends MY_Controller {
 	    }
 
 		//response
-		echo $response;
+		$response_data['count']=$count;
+		$response_data['total']=$total;
+		$response_data['message']=$response;
+		echo json_encode($response,JSON_PRETTY_PRINT);
 	}
 	
 	public function checkDB($dbname) {//Check if database selected can be migrated
