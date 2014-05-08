@@ -1,5 +1,4 @@
 <div class="container-fluid">
-	
   <div class="row col-md-8 col-md-offset-2">
   	<form id="fmMigration" action="migrate/migrate" method="post">
 	  	<div class="panel panel-success">
