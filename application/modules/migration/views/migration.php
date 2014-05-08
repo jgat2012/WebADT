@@ -1,5 +1,4 @@
 <div class="container-fluid">
-	
   <div class="row col-md-8 col-md-offset-2">
   	<form id="fmMigration" action="migrate/migrate" method="post">
 	  	<div class="panel panel-success">
@@ -80,8 +79,8 @@
 			</div> <!-- / .panel-heading -->
 			<div class="panel-body tab-content-padding">
 				<!-- Panel padding, without vertical padding -->
-				<div class="" style="position: relative; overflow: hidden; width: auto; height: 36%;">
-					<div class="panel-padding no-padding-vr" style="overflow: hidden; width: auto; height: 300px;">
+				<div class="row" style="position: relative; overflow: hidden; width: auto; height: 30%;">
+					<div class="panel-padding no-padding-vr" style="overflow: hidden; width: auto; height: auto;">
 						<label>Overall Progress</label>
 						<div class="progress progress-striped active">
 						  <div id="migration_overall_progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
@@ -90,12 +89,7 @@
 						</div>
 						<hr size="2">
 						<div id="migrate_table_result_holder" style="position: relative; overflow: scroll; width: auto; height: 100%;">
-							<div class="ticket">
-								<span class="label label-success ticket-label">Completed</span>
-								<a href="#" title="" class="ticket-title">
-									TableName
-								</a>
-							</div>
+							
 					    </div>
 						 
 					</div>

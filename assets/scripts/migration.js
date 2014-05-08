@@ -173,7 +173,6 @@ function migrate(source_table, table_counter, overall_total, facility_code,ccc_p
 	}
 	var over_progress = (migrated_table/overall_total) *100; //Overall percentage
 	over_progress = Math.round(over_progress);
-	
 	var link = 'migration/migrate';
 	$.ajax({
 		url : link,

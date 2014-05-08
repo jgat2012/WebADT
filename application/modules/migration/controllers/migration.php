@@ -37,7 +37,7 @@ class Migration extends MY_Controller {
 
 	}
 
-	public function mapping($facility_code=null,$ccc_pharmacy=null,$table=null){
+	public function mapping($facility_code=null,$ccc_pharmacy=null,$source_database=null,$table=null){
 		$key = $this -> encrypt -> get_key();
 		//migration table mapping
 		$tables = array(
@@ -53,6 +53,7 @@ class Migration extends MY_Controller {
  	            	'active',
  	            	'ccc_store_sp'),
  	             'conditions'=>'',
+ 	             'before'=>array(),
  	             'update'=>array()
  	            ),
 			 'Drug Destination'=>array(
@@ -67,6 +68,7 @@ class Migration extends MY_Controller {
 			 		'active',
  	            	'ccc_store_sp'),
 			 	'conditions'=>'WHERE destination IS NOT NULL',
+			 	'before'=>array(),
  	            'update'=>array()
 			 	),
 			 'Drug Unit'=>array(
@@ -79,22 +81,23 @@ class Migration extends MY_Controller {
 			 		'Name',
  	            	'ccc_store_sp'),
 			 	 'conditions'=>'',
+			 	 'before'=>array(),
  	             'update'=>array()
 			 	),
 			 'Drug Generic Name' =>array(
 			 	'source'=>'tblGenericName',
 			 	'source_columns'=>array(
-			 		'genid',
 			 		'genericname',
 			 		'1',
  	            	$ccc_pharmacy),
 			 	'destination'=>'generic_name',
 			 	'destination_columns'=>array(
-			 		'id',
 			 		'name',
 			 		'active',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 	'conditions'=>'WHERE genericname is not null',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	), 
 			 'Drug' => array(
 			 	'source'=>'tblARVDrugStockMain',
@@ -129,23 +132,38 @@ class Migration extends MY_Controller {
 			 		'drug_in_use',
 			 		'supplied',
  	            	'ccc_store_sp'),
+			 	 'conditions'=>'WHERE genericname is not null',
+			 	 'before'=>array(
+			 	 	'0'=>'UPDATE '.$source_database.'.tblarvdrugstockmain d,'.$source_database.'.tblgenericname g
+			 	 	      SET d.genericname=g.genericname
+			 	 	      WHERE d.genericname=g.genid
+			 	 	      AND d.genericname IS NOT NULL'),
  	             'update'=>array(
  	             	'0'=>'UPDATE drugcode dc,drug_unit du 
  	             	      SET dc.unit=du.id 
- 	             	      WHERE dc.unit=du.Name')
+ 	             	      WHERE dc.unit=du.Name
+ 	             	      AND du.ccc_store_sp='.$ccc_pharmacy,
+ 	             	'1'=>'UPDATE drugcode dc,generic_name g 
+ 	             	      SET dc.generic_name=g.id 
+ 	             	      WHERE dc.generic_name=g.name
+ 	             	      AND g.ccc_store_sp='.$ccc_pharmacy)
 			 	),
 			 'Drug Brand'=>array(
 			 	'source'=>'tbldrugbrandname',
 			 	'source_columns'=>array(
-			 		'drug_id',
-			 		'brand',
- 	            	$ccc_pharmacy),
-			 	'destination'=>'brand',
-			 	'destination_columns'=>array(
 			 		'arvdrugsid',
 			 		'brandname',
- 	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 		$ccc_pharmacy
+ 	            	),
+			 	'destination'=>'brand',
+			 	'destination_columns'=>array( 		
+			 		'drug_id',
+			 		'brand',
+			 		'ccc_store_sp'),
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array(
+ 	            	'0'=>'UPDATE brand,drugcode dc SET drug_id=dc.id WHERE drug_id=dc.drug')
 			 	),
 			 'Drug Stock Balance'=>array(
 			 	'source'=>'tbldrugstockbatch',
@@ -168,10 +186,13 @@ class Migration extends MY_Controller {
 			 		'balance',
 			 		'last_update',
  	            	'ccc_store_sp'),
- 	             'update'=>array(
- 	             	'0'=>'UPDATE drug_stock_balance,drugcode dc 
- 	             	      SET drug_id=dc.id 
- 	             	      WHERE drug_id=dc.drug')
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array(
+ 	             	'0'=>'UPDATE drug_stock_balance dsb,drugcode dc 
+ 	             	      SET dsb.drug_id=dc.id 
+ 	             	      WHERE dsb.drug_id=dc.drug
+ 	             	      AND dsb.ccc_store_sp='.$ccc_pharmacy)
 			 	),
 			 'Dose' =>array(
 			 	'source'=>'tblDose',
@@ -188,7 +209,9 @@ class Migration extends MY_Controller {
 			 		'frequency',
 			 		'Active',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	),
 			 'Indication' =>array(
 			 	'source'=>'tblIndication',
@@ -203,50 +226,54 @@ class Migration extends MY_Controller {
 			 		'indication',
 			 		'active',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 	'conditions'=>'WHERE indicationname IS NOT NULL',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	),
 			 'Regimen Change Reason' => array(
 			 	'source'=>'tblReasonforChange',
 			 	'source_columns'=>array(
-			 		'reasonforchangeid',
 			 		'reasonforchange',
-			 		'1'),
-			 	'destination'=>'opportunistic_infection',
+			 		'1',
+ 	            	$ccc_pharmacy),
+			 	'destination'=>'regimen_change_purpose',
 			 	'destination_columns'=>array(
-			 		'id',
 			 		'name',
-			 		'active'),
- 	             'update'=>array()
+			 		'active',
+			 		'ccc_store_sp'),
+			 	'conditions'=>'WHERE reasonforchange IS NOT NULL',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	), 
 			 'Regimen Category' => array(
 			 	'source'=>'tblRegimenCategory',
 			 	'source_columns'=>array(
-			 		'categoryid',
 			 		'categoryname',
 			 		'1',
  	            	$ccc_pharmacy),
 			 	'destination'=>'regimen_category',
 			 	'destination_columns'=>array(
-			 		'id',
 			 		'Name',
 			 		'Active',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	), 
 			 'Regimen Service Type' => array(
 			 	'source'=>'tblTypeOfService',
 			 	'source_columns'=>array(
-			 		'typeofserviceid',
 			 		'typeofservice',
 			 		'1',
  	            	$ccc_pharmacy),
 			 	'destination'=>'regimen_service_type',
 			    'destination_columns'=>array(
-			 		'id',
 			 		'name',
 			 		'active',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			    'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			    ), 
 			 'Regimen' => array(
 			 	'source'=>'tblRegimen',
@@ -270,7 +297,9 @@ class Migration extends MY_Controller {
 			 		'type_of_service',
 			 		'enabled',
  	            	'ccc_store_sp'),
- 	             'update'=>array(
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array(
  	             	'0'=>'UPDATE regimen 
  	             	      SET enabled="0" 
  	             	      WHERE regimen_desc=""')
@@ -286,7 +315,9 @@ class Migration extends MY_Controller {
 			 		'regimen',
 			 		'drugcode',
 			 		'active'),
- 	             'update'=>array()
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	), 
 			 'Patient Status' => array(
 			 	'source'=>'tblCurrentStatus',
@@ -301,7 +332,9 @@ class Migration extends MY_Controller {
 			 		'Name',
 			 		'Active',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	), 
 			 'Patient Source' => array(
 			 	'source'=>'tblSourceOfClient',
@@ -316,7 +349,9 @@ class Migration extends MY_Controller {
 			 		'name',
 			 		'active',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	), 
 			 'Patient' => array(
 			 	'source'=>'tblARTPatientMasterInformation',
@@ -397,7 +432,9 @@ class Migration extends MY_Controller {
 			 		'facility_code',
 			 		'drug_prophylaxis',
  	            	'ccc_store_sp'),
- 	             'update'=>array(
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array(
  	             	'0'=>'UPDATE patient 
  	             	      SET start_regimen_date=date_enrolled 
  	             	      WHERE start_regimen_date=""',
@@ -422,7 +459,9 @@ class Migration extends MY_Controller {
 			 		'patient',
 			 		'appointment',
 			 		'facility'),
- 	             'update'=>array()
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	), 
 			 'Transaction Type' => array(
 			 	'source'=>'tblStockTransactionType',
@@ -439,7 +478,9 @@ class Migration extends MY_Controller {
 			 		'`desc`',
 			 		'active',
  	            	'ccc_store_sp'),
- 	             'update'=>array(
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array(
  	             	'0'=>'UPDATE transaction_type 
  	             	      SET effect="1" 
  	             	      WHERE name LIKE "%Starting%" 
@@ -461,7 +502,9 @@ class Migration extends MY_Controller {
 			 		'name',
 			 		'active',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	), 
 			 'Users' => array(
 			 	'source'=>'tblSecurity',
@@ -486,7 +529,9 @@ class Migration extends MY_Controller {
 			 		'Created_By',
 			 		'Time_Created',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	), 
 			 'Drug Transactions' => array(
 			 	'source'=>'tblARVDrugStockTransactions',
@@ -526,7 +571,9 @@ class Migration extends MY_Controller {
 			 		'operator',
 			 		'facility',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	),
 			 'Patient Transactions' => array(
 			 	'source'=>'tblARTPatientTransactions',
@@ -573,7 +620,9 @@ class Migration extends MY_Controller {
 			 		'regimen_change_reason',
 			 		'batch_number',
 			 		'facility'),
- 	             'update'=>array()
+			 	'conditions'=>'',
+			 	'before'=>array(),
+ 	            'update'=>array()
 			 	)
 			 );
             //if table is not null get value of array in position of the table
@@ -591,12 +640,13 @@ class Migration extends MY_Controller {
 		$table=$this->input->post('table',TRUE);
 
 		//retrieve table data from tables array
-		$config=$this->mapping($facility_code,$ccc_pharmacy,$table);
+		$config=$this->mapping($facility_code,$ccc_pharmacy,$source_database,$table);
 		$source_table=$config['source'];
 		$source_columns=implode(",", $config['source_columns']);
 		$destination_table=$config['destination'];
 		$destination_columns=implode(",", $config['destination_columns']);
 		$conditions=$config['conditions'];
+		$befores=$config['before'];
 		$updates=$config['update'];
 
 		//check migration log for last value migrated
@@ -615,6 +665,13 @@ class Migration extends MY_Controller {
 		  $offset=$last_index;
 		  $count = $results[0]['count'];
 		  $migration_id=$results[0]['id'];
+	    }
+
+	    //run before statements that affect source table
+		if(!empty($befores)){
+			foreach($befores as $before){
+	             $this->db->query($before);
+			}
 	    }
 
          //set limits  
@@ -665,7 +722,7 @@ class Migration extends MY_Controller {
 			$this->db->insert('migration_log',$migration_log);
 		}
 
-		//run update statements
+		//run update statements that affect destination table
 		if(!empty($updates)){
 			foreach($updates as $update){
 	             $this->db->query($update);
