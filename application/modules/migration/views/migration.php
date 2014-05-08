@@ -79,8 +79,8 @@
 			</div> <!-- / .panel-heading -->
 			<div class="panel-body tab-content-padding">
 				<!-- Panel padding, without vertical padding -->
-				<div class="row" style="position: relative; overflow: hidden; width: auto; height: 36%;">
-					<div class="panel-padding no-padding-vr" style="overflow: hidden; width: auto; height: 300px;">
+				<div class="row" style="position: relative; overflow: hidden; width: auto; height: 25%;">
+					<div class="panel-padding no-padding-vr" style="overflow: hidden; width: auto; height: auto;">
 						<label>Overall Progress</label>
 						<div class="progress progress-striped active">
 						  <div id="migration_overall_progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
