@@ -11,11 +11,17 @@ class Migration extends MY_Controller {
 
 	public function index() {
         //get all facilities
-        $sql = "SELECT facilitycode as facility_code,name as facility_name FROM facilities";
+        $sql = "SELECT facilitycode as facility_code,name as facility_name 
+                FROM facilities
+                WHERE name IS NOT NULL 
+                AND name !=''
+                ORDER BY name ASC";
 		$query = $this -> db -> query($sql);
 		$data['facilities'] = $query -> result_array();
         //get cc_store_pharmacy
-        $sql = "SELECT id as ccc_id,name as ccc_name FROM ccc_store_service_point WHERE active='1'";
+        $sql = "SELECT id as ccc_id,name as ccc_name 
+                FROM ccc_store_service_point 
+                WHERE active='1'";
 		$query = $this -> db -> query($sql);
 		$data['stores'] = $query -> result_array();
 		//get databases in server
@@ -38,16 +44,16 @@ class Migration extends MY_Controller {
 			 'Drug Source'=>array(
  	            'source'=>'tblarvstocktransourceordestination',
  	            'source_columns'=>array(
- 	            	'sdno',
  	            	'sourceordestination',
  	            	'1',
  	            	$ccc_pharmacy),
  	            'destination'=>'drug_source',
  	            'destination_columns'=>array(
- 	            	'id',
  	            	'name',
  	            	'active',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'conditions'=>'',
+ 	             'update'=>array()
  	            ),
 			 'Drug Destination'=>array(
 			 	'source'=>'tbldestination',
@@ -59,17 +65,21 @@ class Migration extends MY_Controller {
 			 	'destination_columns'=>array(
 			 		'name',
 			 		'active',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+			 	'conditions'=>'WHERE destination IS NOT NULL',
+ 	            'update'=>array()
 			 	),
 			 'Drug Unit'=>array(
 			 	'source'=>'tblunit',
 			 	'source_columns'=>array(
-			 		'Name',
+			 		'unit',
  	            	$ccc_pharmacy),
 			 	'destination'=>'drug_unit',
 			 	'destination_columns'=>array(
-			 		'unit',
- 	            	'ccc_store_sp')
+			 		'Name',
+ 	            	'ccc_store_sp'),
+			 	 'conditions'=>'',
+ 	             'update'=>array()
 			 	),
 			 'Drug Generic Name' =>array(
 			 	'source'=>'tblGenericName',
@@ -83,7 +93,8 @@ class Migration extends MY_Controller {
 			 		'id',
 			 		'name',
 			 		'active',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array()
 			 	), 
 			 'Drug' => array(
 			 	'source'=>'tblARVDrugStockMain',
@@ -117,7 +128,11 @@ class Migration extends MY_Controller {
 			 		'tb_drug',
 			 		'drug_in_use',
 			 		'supplied',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array(
+ 	             	'0'=>'UPDATE drugcode dc,drug_unit du 
+ 	             	      SET dc.unit=du.id 
+ 	             	      WHERE dc.unit=du.Name')
 			 	),
 			 'Drug Brand'=>array(
 			 	'source'=>'tbldrugbrandname',
@@ -129,7 +144,8 @@ class Migration extends MY_Controller {
 			 	'destination_columns'=>array(
 			 		'arvdrugsid',
 			 		'brandname',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array()
 			 	),
 			 'Drug Stock Balance'=>array(
 			 	'source'=>'tbldrugstockbatch',
@@ -151,7 +167,11 @@ class Migration extends MY_Controller {
 			 		'facility_code',
 			 		'balance',
 			 		'last_update',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array(
+ 	             	'0'=>'UPDATE drug_stock_balance,drugcode dc 
+ 	             	      SET drug_id=dc.id 
+ 	             	      WHERE drug_id=dc.drug')
 			 	),
 			 'Dose' =>array(
 			 	'source'=>'tblDose',
@@ -167,7 +187,8 @@ class Migration extends MY_Controller {
 			 		'value',
 			 		'frequency',
 			 		'Active',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array()
 			 	),
 			 'Indication' =>array(
 			 	'source'=>'tblIndication',
@@ -181,7 +202,8 @@ class Migration extends MY_Controller {
 			 		'name',
 			 		'indication',
 			 		'active',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array()
 			 	),
 			 'Regimen Change Reason' => array(
 			 	'source'=>'tblReasonforChange',
@@ -193,7 +215,8 @@ class Migration extends MY_Controller {
 			 	'destination_columns'=>array(
 			 		'id',
 			 		'name',
-			 		'active')
+			 		'active'),
+ 	             'update'=>array()
 			 	), 
 			 'Regimen Category' => array(
 			 	'source'=>'tblRegimenCategory',
@@ -207,7 +230,8 @@ class Migration extends MY_Controller {
 			 		'id',
 			 		'Name',
 			 		'Active',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array()
 			 	), 
 			 'Regimen Service Type' => array(
 			 	'source'=>'tblTypeOfService',
@@ -221,7 +245,8 @@ class Migration extends MY_Controller {
 			 		'id',
 			 		'name',
 			 		'active',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array()
 			    ), 
 			 'Regimen' => array(
 			 	'source'=>'tblRegimen',
@@ -244,7 +269,11 @@ class Migration extends MY_Controller {
 			 		'category',
 			 		'type_of_service',
 			 		'enabled',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array(
+ 	             	'0'=>'UPDATE regimen 
+ 	             	      SET enabled="0" 
+ 	             	      WHERE regimen_desc=""')
 			 	), 
 			 'Regimen Drugs' => array(
 			 	'source'=>'tblDrugsInRegimen',
@@ -256,7 +285,8 @@ class Migration extends MY_Controller {
 			 	'destination_columns'=>array(
 			 		'regimen',
 			 		'drugcode',
-			 		'active')
+			 		'active'),
+ 	             'update'=>array()
 			 	), 
 			 'Patient Status' => array(
 			 	'source'=>'tblCurrentStatus',
@@ -270,7 +300,8 @@ class Migration extends MY_Controller {
 			 		'id',
 			 		'Name',
 			 		'Active',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array()
 			 	), 
 			 'Patient Source' => array(
 			 	'source'=>'tblSourceOfClient',
@@ -284,7 +315,8 @@ class Migration extends MY_Controller {
 			 		'id',
 			 		'name',
 			 		'active',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array()
 			 	), 
 			 'Patient' => array(
 			 	'source'=>'tblARTPatientMasterInformation',
@@ -364,7 +396,20 @@ class Migration extends MY_Controller {
 			 		'transfer_from',
 			 		'facility_code',
 			 		'drug_prophylaxis',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array(
+ 	             	'0'=>'UPDATE patient 
+ 	             	      SET start_regimen_date=date_enrolled 
+ 	             	      WHERE start_regimen_date=""',
+ 	             	'1'=>'UPDATE patient 
+ 	             	      SET status_change_date=start_regimen_date 
+ 	             	      WHERE status_change_date=""',
+ 	             	'2'=>'UPDATE patient,regimen r 
+ 	             	      SET current_regimen=r.id 
+ 	             	      WHERE current_regimen=r.regimen_code',
+ 	             	'3'=>'UPDATE patient,regimen r 
+ 	             	      SET start_regimen=r.id 
+ 	             	      WHERE start_regimen=r.regimen_code')
 			 	), 
 			 'Patient Appointment' => array(
 			 	'source'=>'tblARTPatientMasterInformation',
@@ -376,7 +421,8 @@ class Migration extends MY_Controller {
 			 	'destination_columns'=>array(
 			 		'patient',
 			 		'appointment',
-			 		'facility')
+			 		'facility'),
+ 	             'update'=>array()
 			 	), 
 			 'Transaction Type' => array(
 			 	'source'=>'tblStockTransactionType',
@@ -392,7 +438,14 @@ class Migration extends MY_Controller {
 			 		'name',
 			 		'`desc`',
 			 		'active',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array(
+ 	             	'0'=>'UPDATE transaction_type 
+ 	             	      SET effect="1" 
+ 	             	      WHERE name LIKE "%Starting%" 
+ 	             	      OR name LIKE "%+%" 
+ 	             	      OR name LIKE "%Forward%" 
+ 	             	      OR name LIKE "%Received%"')
 			 	), 
 			 'Visit Purpose' => array(
 			 	'source'=>'tblVisitTransaction',
@@ -407,7 +460,8 @@ class Migration extends MY_Controller {
 			 		'id',
 			 		'name',
 			 		'active',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array()
 			 	), 
 			 'Users' => array(
 			 	'source'=>'tblSecurity',
@@ -431,7 +485,8 @@ class Migration extends MY_Controller {
 			 		'Active',
 			 		'Created_By',
 			 		'Time_Created',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array()
 			 	), 
 			 'Drug Transactions' => array(
 			 	'source'=>'tblARVDrugStockTransactions',
@@ -470,7 +525,8 @@ class Migration extends MY_Controller {
 			 		'remarks',
 			 		'operator',
 			 		'facility',
- 	            	'ccc_store_sp')
+ 	            	'ccc_store_sp'),
+ 	             'update'=>array()
 			 	),
 			 'Patient Transactions' => array(
 			 	'source'=>'tblARTPatientTransactions',
@@ -516,7 +572,8 @@ class Migration extends MY_Controller {
 			 		'adherence',
 			 		'regimen_change_reason',
 			 		'batch_number',
-			 		'facility')
+			 		'facility'),
+ 	             'update'=>array()
 			 	)
 			 );
             //if table is not null get value of array in position of the table
@@ -539,43 +596,87 @@ class Migration extends MY_Controller {
 		$source_columns=implode(",", $config['source_columns']);
 		$destination_table=$config['destination'];
 		$destination_columns=implode(",", $config['destination_columns']);
+		$conditions=$config['conditions'];
+		$updates=$config['update'];
 
 		//check migration log for last value migrated
-		$sql = "SELECT id,last_index,count FROM migration_log WHERE source='$destination_table'";
+		$sql = "SELECT id,last_index,count 
+		        FROM migration_log 
+		        WHERE source='$destination_table' 
+		        AND ccc_store_sp='$ccc_pharmacy'";
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
 		$offset=0;
+		$last_index=0;
 		$count=0;
 		$migration_id=null;
 		if($results){
-		  $offset = $results[0]['last_index'];
-		  $count = $results[0]['last_index'];
+		  $last_index = $results[0]['last_index'];
+		  $offset=$last_index;
+		  $count = $results[0]['count'];
 		  $migration_id=$results[0]['id'];
+	    }
+
+         //set limits  
+	    $limit=" LIMIT ".$offset.",18446744073709551615";
+	    if($destination_table=="patient_visit" || $destination_table=="drug_stock_movement"){
+	    	//set limit to 10000 for patient_visit and drug_stock_movement tables
+	    	$limit=" LIMIT 10000";
 	    }
 
 		//generate sql and execute
 		$sql="INSERT IGNORE INTO ".$destination_table."(".$destination_columns.")";
 		$sql.="SELECT ".$source_columns; 
-		$sql.=" FROM ".$source_database.".".$source_table." LIMIT ".$offset.",18446744073709551615";
+		$sql.=" FROM ".$source_database.".".$source_table;
+		$sql.=" ".$conditions.$limit;
+        $this->db->query($sql);
+        
+    	//count records in source table
+		$sql = "SELECT COUNT(*) as total FROM $source_database.$source_table $conditions";
+	    $query = $this -> db -> query($sql);
+	    $results = $query -> result_array();
+	    if($results){
+	      $total =$results[0]['total'];
+	      $last_index =$results[0]['total'];
+	      if($last_index==$count){
+              $response="Migration[".$table."] Failed:All data is already migrated!";
+	      }else{
+	      	  $response="Migration[".$table."] Success:Data migrated from source(".$source_table.") to destination(".$destination_table.")!";
+	      }
+	      $count =$results[0]['total'];
+	    }else{
+	    	//response if failed not data in source table
+          $response="Migration[".$table."] Failed:No data is present at source table!";
+	    }
 
 		//update migration log
 		if($migration_id !=null){
-			//count records in source table
-			$sql = "SELECT COUNT(*) as total FROM $source_database.$source_table";
-		    $query = $this -> db -> query($sql);
-		    $results = $query -> result_array();
-		    if($results){
-		      $last_index =$results[0]['total'];
-		    }
+            $migration_log=array(
+							'last_index'=>$last_index,
+							'count'=>$count);
 			$this -> db -> where('id', $migration_id);
-		    $this -> db -> update('migration_log', array('last_index' => $last_index,'count'=>$count));
+		    $this -> db -> update('migration_log', $migration_log);
+		}else{
+			$migration_log=array(
+							'source'=>$destination_table,
+							'last_index'=>$last_index,
+							'count'=>$count,
+							'ccc_store_sp'=>$ccc_pharmacy);
+			$this->db->insert('migration_log',$migration_log);
 		}
 
+		//run update statements
+		if(!empty($updates)){
+			foreach($updates as $update){
+	             $this->db->query($update);
+			}
+	    }
+
 		//response
-		$response="source(".$source_table.") to destination(".$destination_table.") successful";
-
-		echo $response;
-
+		$response_data['count']=$count;
+		$response_data['total']=$total;
+		$response_data['message']=$response;
+		echo json_encode($response,JSON_PRETTY_PRINT);
 	}
 	
 	public function checkDB($dbname) {//Check if database selected can be migrated
