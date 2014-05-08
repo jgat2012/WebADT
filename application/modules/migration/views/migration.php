@@ -1,8 +1,8 @@
 <div class="container-fluid">
 	
   <div class="row col-md-8 col-md-offset-2">
-  	<form action="migrate/migrate" method="post">
-	  	<div class="panel panel-primary">
+  	<form id="fmMigration" action="migrate/migrate" method="post">
+	  	<div class="panel panel-success">
 	  		<div class="panel-heading">
 				<span class="panel-title"><i class="panel-title-icon fa fa-tag"></i> Migration Settings</span>
 			</div>
@@ -11,7 +11,8 @@
 					<div class="form-group">
 				      <label for="facility_code">Facility</label>
 				      <select id="facility_code" name="facility_code" class="form-control">
-				        <option value="0">-- Select Facility --</option>
+				        <option value=""> Select Facility </option>
+				        <option value="1">Machakos</option>
 				      </select>
 				    </div>
 				    <div class="form-group">
@@ -19,7 +20,7 @@
 				      <div class="row">
 					      <div class="col-md-5">
 						      <select id="ccc_pharmacy" name="ccc_pharmacy" class="form-control">
-						        <option value="0">-- Select Pharmacy --</option>
+						        <option value="">-- Select Pharmacy --</option>
 						      </select>
 						  </div>
 						  <div class="col-md-1">
@@ -35,7 +36,8 @@
 					<div class="form-group">
 				      <label for="source_database">Database</label>
 				      <select id="source_database" name="source_database" class="form-control">
-				        <option value="0">-- Select Database --</option>
+				        <option value=""> Select Database </option>
+				        <option value="1"> Database </option>
 				      </select>
 				    </div>
 				    <div class="form-group">
@@ -60,51 +62,31 @@
 	  </form>
   		
   	</div>
-  </div>
 	
   <div id="migration_body" class="row col-md-8 col-md-offset-2">
 		<div class="panel panel-success widget-support-tickets" >
 			<div class="panel-heading">
-				<span class="panel-title"><i class="panel-title-icon fa fa-bullhorn"></i>Support Tickets</span>
+				<span class="panel-title"><i class="panel-title-icon fa fa-tag"></i> Migration Progress</span>
 			</div> <!-- / .panel-heading -->
 			<div class="panel-body tab-content-padding">
 				<!-- Panel padding, without vertical padding -->
-				<div class="" style="position: relative; overflow: hidden; width: auto; height: 300px;"><div class="panel-padding no-padding-vr" style="overflow: hidden; width: auto; height: 300px;">
-
-					<div class="ticket">
-						<span class="label label-warning ticket-label">Pending</span>
-						<a href="#" title="" class="ticket-title">Mobile App Problem<span>[#201797]</span></a>
-						<span class="ticket-info">
-							Opened by <a href="#">Denise Steiner</a> 2 days ago
-						</span>
-					</div> <!-- / .ticket -->
-
-					<div class="ticket">
-						<span class="label label-info ticket-label">In progress</span>
-						<a href="#" title="" class="ticket-title">
-							<i class="fa fa-warning text-danger"></i>PayPal issue<span>[#201796]</span>
-						</a>
-						<span class="ticket-info">
-							Opened by <a href="#">Robert Jang</a> 3 days ago
-						</span>
-					</div> <!-- / .ticket -->
-
-					<div class="ticket">
-						<span class="label label-danger ticket-label">Rejected</span>
-						<a href="#" title="" class="ticket-title">IE8 problem<span>[#201795]</span></a>
-						<span class="ticket-info">
-							Opened by <a href="#">Robert Jang</a> 4 days ago
-						</span>
-					</div> <!-- / .ticket -->
-
-					<div class="ticket">
-						<span class="label label-success ticket-label">Completed</span>
-						<a href="#" title="" class="ticket-title">Server unavaible<span>[#201794]</span></a>
-						<span class="ticket-info">
-							Opened by <a href="#">Timothy Owens</a> 5 days ago
-						</span>
-					</div> <!-- / .ticket -->
-				</div></div>
+				<div class="" style="position: relative; overflow: hidden; width: auto; height: 300px;">
+					<div class="panel-padding no-padding-vr" style="overflow: hidden; width: auto; height: 300px;">
+						<label>Overall Progress</label>
+						<div class="progress">
+						  <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+						    60%
+						  </div>
+						</div>
+						<hr size="2">
+						<div class="ticket">
+							<span class="label label-success ticket-label">Completed</span>
+							<a href="#" title="" class="ticket-title">
+								TableName
+							</a>
+						</div> <!-- / .ticket -->
+					</div>
+				</div>
 			</div> <!-- / .panel-body -->
 		</div> <!-- / .panel -->
   </div>
