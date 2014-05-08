@@ -11,7 +11,7 @@
 					<div class="form-group">
 				      <label for="facility_code">Facility</label>
 				      <select id="facility_code" name="facility_code" class="form-control" required>
-				        <option value="0">-- Select Facility --</option>
+				        <option value=""> Select Facility </option>
 				        <?php 
 				          foreach($facilities as $facility){
 				        ?>
@@ -26,7 +26,7 @@
 				      <div class="row">
 					      <div class="col-md-5">
 						      <select id="ccc_pharmacy" name="ccc_pharmacy" class="form-control">
-						        <option value="0">-- Select Pharmacy --</option>
+						        <option value=""> Select Pharmacy </option>
 						        <?php 
 						          foreach($stores as $store){
 						        ?>
@@ -49,7 +49,7 @@
 					<div class="form-group">
 				      <label for="source_database">Database</label>
 				      <select id="source_database" name="source_database" class="form-control">
-				        <option value="0">-- Select Database --</option>
+				        <option value=""> Select Database </option>
 				        <?php 
 				          foreach($databases as $database){
 				        ?>
