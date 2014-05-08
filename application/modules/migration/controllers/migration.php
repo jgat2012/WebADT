@@ -11,11 +11,17 @@ class Migration extends MY_Controller {
 
 	public function index() {
         //get all facilities
-        $sql = "SELECT facilitycode as facility_code,name as facility_name FROM facilities";
+        $sql = "SELECT facilitycode as facility_code,name as facility_name 
+                FROM facilities
+                WHERE name IS NOT NULL 
+                AND name !=''
+                ORDER BY name ASC";
 		$query = $this -> db -> query($sql);
 		$data['facilities'] = $query -> result_array();
         //get cc_store_pharmacy
-        $sql = "SELECT id as ccc_id,name as ccc_name FROM ccc_store_service_point WHERE active='1'";
+        $sql = "SELECT id as ccc_id,name as ccc_name 
+                FROM ccc_store_service_point 
+                WHERE active='1'";
 		$query = $this -> db -> query($sql);
 		$data['stores'] = $query -> result_array();
 		//get databases in server
