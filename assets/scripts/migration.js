@@ -13,7 +13,7 @@ $(function() {
 			source_database : {
 				required : true
 			},
-			table : {
+			ccc_pharmacy : {
 				required : true
 			}
 		},
@@ -26,10 +26,9 @@ $(function() {
 			source_database : {
 				required : 'Please select a database'
 			},
-			table : {
-				required : 'You have not selected any table'
-			},
-			ignore: ':hidden:not("#table")'
+			ccc_pharmacy : {
+				required : 'You have not selected any Store'
+			}
 		},
 
 		// Do not change code below
@@ -88,18 +87,11 @@ $(function() {
 	  	var btn = $("#migration_btn");
 	    btn.button('Migrating ...');
 	    
-	    var check_ccc_pharmacy = selectedCccPharmacy();//Check if ccc pharmacy was entered or selected
+	    var selectedPharmacy = $.trim($('#ccc_pharmacy').val());//Check if ccc pharmacy was entered or selected
 	    
-	    if(check_ccc_pharmacy==''){//If no CCC pharmacy, append error message
-	    	$("<em class='invalid' id='no_ccc_pharmacy'>Please select or enter a CCC Pharmacy !</em>").insertAfter("#fg_ccc_pharmacy");
-	    	return;
-	    }
-	    
-	    
-		var facility_code = $("#facility_code").val();
-		var selected_ccc_pharmacy = check_ccc_pharmacy;
+	    var facility_code = $("#facility_code").val();
+		var selected_ccc_pharmacy = selectedPharmacy;
 		var database_name = $("#source_database").val();
-		
 		
 		//If everything is ok, start migration
 		startMigration(facility_code,selected_ccc_pharmacy,database_name,selectedTables);
@@ -123,7 +115,6 @@ function checkTableSelected(){//Function to check if database tables to be migra
 	  if(allSelected){//If all database tables are selected
 	  	check = selectedTables;
 	  }else{
-	  	
 	  	 
 	  	if(selectedTables==null){//If no table was selected
 	  		check = 0;
@@ -135,13 +126,6 @@ function checkTableSelected(){//Function to check if database tables to be migra
 	  return check;
 }
 
-function selectedCccPharmacy(){// Function to get the selected pharmacy or the entered value from the migration settings form
-	var selectedPharmacy = $.trim($('#ccc_pharmacy').val());
-	if(selectedPharmacy==null){//No pharmacy selected
-		selectedPharmacy = $('#new_ccc_store').val();
-	}
-	return selectedPharmacy;
-}
 
 //function to start migration
 function startMigration(facility_code,ccc_pharmacy,database,selected_tables) {
@@ -155,26 +139,38 @@ function startMigration(facility_code,ccc_pharmacy,database,selected_tables) {
 		overall_total = overall_total - 1;
 	}
 	//exclude select all
-	$.each(selected_tables, function(i, v) {
-		var source_table = v;
-		if(source_table != "multiselect-all") {
-			table_counter++;
-			//Check Migration Log
-			checkLog(source_table, table_counter, overall_total,facility_code,ccc_pharmacy,database);
-			return;
-		}
-	});
+	getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database);
 }
 
-//function to check migration last index and count records in target table
-function checkLog(source_table, table_counter, overall_total, facility_code,ccc_pharmacy,database) {
+
+//Function to check current table being migrated and its index
+function getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database){
+	var index = table_counter;
+	var current_table = selected_tables[index];
 	
-	var link = 'migration/getLog';
+	if(current_table == "multiselect-all") { //If select all option is selected, increment the index
+		table_counter++;
+		getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database);
+		return;
+		
+	}else{
+		//Check Migration Log
+		migrate(current_table, table_counter, overall_total,facility_code,ccc_pharmacy,database);
+		//return;
+	}
+}
+
+//function to start migration
+function migrate(source_table, table_counter, overall_total, facility_code,ccc_pharmacy,database) {
+	alert(database);return;
+	var link = 'migration/migrate';
 	$.ajax({
 		url : link,
 		type : 'POST',
 		dataType : "json",
 		data : {
+			"facility_code" : facility_code,
+			"facility_code" : facility_code,
 			"database_name" : database,
 			"source_table" : source_table
 		},
@@ -195,3 +191,4 @@ function checkLog(source_table, table_counter, overall_total, facility_code,ccc_
 		}
 	});
 }
+

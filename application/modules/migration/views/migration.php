@@ -23,26 +23,16 @@
 				    </div>
 				    <div class="form-group" id="fg_ccc_pharmacy">
 				      <label for="ccc_pharmacy">Pharmacy</label>
-				      <div class="row">
-					      <div class="col-md-5">
-						      <select id="ccc_pharmacy" name="ccc_pharmacy" class="form-control">
-						        <option value=""> Select Pharmacy </option>
-						        <?php 
-						          foreach($stores as $store){
-						        ?>
-		                           <option value="<?php echo $store['ccc_id'];?>"><?php echo $store['ccc_name']; ?></option>
-		                        <?php
-						          }
-						        ?>
-						      </select>
-						  </div>
-						  <div class="col-md-1">
-						      <label class=""><b>or</b></label>
-						  </div>
-						  <div class="col-md-6">
-						  	<input type="text" class="form-control" id="new_ccc_store" name="new_ccc_store" placeholder="Enter CCC Store">
-						  </div>
-					  </div>
+					      <select id="ccc_pharmacy" name="ccc_pharmacy" class="form-control">
+					        <option value=""> Select Pharmacy </option>
+					        <?php 
+					          foreach($stores as $store){
+					        ?>
+	                           <option value="<?php echo $store['ccc_id'];?>"><?php echo $store['ccc_name']; ?></option>
+	                        <?php
+					          }
+					        ?>
+					      </select>
 				    </div>
 				</div>
 				<div class="col-md-5">
