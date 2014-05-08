@@ -676,7 +676,8 @@ class Migration extends MY_Controller {
 		$response_data['count']=$count;
 		$response_data['total']=$total;
 		$response_data['message']=$response;
-		echo json_encode($response,JSON_PRETTY_PRINT);
+		$response_data['source_table']=$table;
+		echo json_encode($response_data,JSON_PRETTY_PRINT);
 	}
 	
 	public function checkDB($dbname) {//Check if database selected can be migrated
