@@ -84,17 +84,16 @@ class Migration extends MY_Controller {
 			 'Drug Generic Name' =>array(
 			 	'source'=>'tblGenericName',
 			 	'source_columns'=>array(
-			 		'genid',
 			 		'genericname',
 			 		'1',
  	            	$ccc_pharmacy),
 			 	'destination'=>'generic_name',
 			 	'destination_columns'=>array(
-			 		'id',
 			 		'name',
 			 		'active',
  	            	'ccc_store_sp'),
- 	             'update'=>array()
+			 	'conditions'=>'WHERE genericname is not null',
+ 	            'update'=>array()
 			 	), 
 			 'Drug' => array(
 			 	'source'=>'tblARVDrugStockMain',

@@ -162,7 +162,6 @@ function getCurrentTable(table_counter,selected_tables,overall_total,facility_co
 
 //function to start migration
 function migrate(source_table, table_counter, overall_total, facility_code,ccc_pharmacy,database) {
-	alert(database);return;
 	var link = 'migration/migrate';
 	$.ajax({
 		url : link,
@@ -170,9 +169,9 @@ function migrate(source_table, table_counter, overall_total, facility_code,ccc_p
 		dataType : "json",
 		data : {
 			"facility_code" : facility_code,
-			"facility_code" : facility_code,
-			"database_name" : database,
-			"source_table" : source_table
+			"ccc_pharmacy" : ccc_pharmacy,
+			"source_database" : database,
+			"table" : source_table
 		},
 		success : function(data) {
 			//get data from the log and run migration
