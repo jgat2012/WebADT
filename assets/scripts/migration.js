@@ -38,6 +38,11 @@ $(function() {
 	});
 	
 	
+	//Facility selection filtering
+	$("#facility_code").select2();
+	$("#ccc_pharmacy").select2();
+	$("#source_database").select2();
+	
 	//function when database is selected,gets the target tables if match is correct
 	$("#source_database").on('change', function() {
 		//Remove incorrect database message from dom
@@ -79,6 +84,10 @@ $(function() {
 	
 	//When Start Migration button clicked
 	$( "#fmMigration" ).submit(function( event ) {
+
+    $("#overall_progress_bar").addClass("progress-striped");
+    $("#migrate_table_result_holder").empty();//Clear list of tables
+    $("#migrate_btn").attr('disabled', 'disabled'); //Disable button
 		
 	//Reset progress bar
 	$("#migration_overall_progress").text('0%');
@@ -186,30 +195,65 @@ function migrate(source_table, table_counter, overall_total, facility_code,ccc_p
 			"table" : source_table
 		},
 		success : function(data) {
-			console.log(overall_total);
 			var count = data.count; //Total number of migrated data
 			var total = data.total; //Total data to be migrated
 			var message = data.message; 
-			var source_table = data.source_table; 
+			var source_table = data.source_table;
+			var current_table = data.current_table; 
 			width_overall = over_progress+"%";
 			//Update progress bar
 			$("#migration_overall_progress").text(width_overall);
 			$("#migration_overall_progress").attr("aria-valuenow",over_progress);
 			$("#migration_overall_progress").css("width",width_overall);
-			$("#migrate_table_result_holder").append(
-				'<div class="ticket">'+
-					'<span class="label label-success ticket-label">Completed</span>'+
-					'<a href="#" title="" class="ticket-title">'+source_table+'</a>'+
-				'</div>'
-			)
-			//If count is not equal to total, run migration for same table
+			
+			//If count is not equal to total( table has not finishhed migrating), run migration for same table
 			if(count!=total){
+				//Calculate table migration progress
+				var table_migration_progress = (count/total) *100;
+				table_migration_progress = Math.round(table_migration_progress);
+				var width_table_migration_progress = table_migration_progress+"%";
+				//If table has not finished migrating, increment table progress bar
+				$("#migrate_table_result_holder").append(
+					'<div class="ticket migration_notification_holder" id="'+current_table+'"></div>'
+				)
+				
+				$("#"+current_table+"").html(
+					'<div class="progress  ticket-label" style="width: 30%">'+
+					  '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="'+table_migration_progress+'" aria-valuemin="0" aria-valuemax="100" style="width:'+width_table_migration_progress+'">'+
+					    '<span >'+width_table_migration_progress+' Complete</span>'+
+					  '</div>'+
+					'</div>'
+				)
+				
 				getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database);
 			}
 			else{
-				//Check if all the tables have been migrated
+				$("#"+current_table+"").remove();
+				
+				var msg_failed = 'No data is present at source table';
+				var msg_success = 'Success:Data migrated';
+				var msg_already_migrated = 'All data is already migrated';
+				var msg_color ='';
+				if(message.indexOf(msg_success) != -1){
+				    msg_color='success';
+				}else if(message.indexOf(msg_failed) != -1){
+				    msg_color='error';
+				}else if(message.indexOf(msg_already_migrated) != -1){
+				    msg_color='warning';
+				}
+				
+				
+				$("#migrate_table_result_holder").append(
+					'<div class="ticket migration_notification_holder" id="'+current_table+'">'+
+						'<span class="label label-'+msg_color+' ticket-label">'+message+'</span>'+
+						'<span title="" class="ticket-title">'+source_table+'</span>'+
+					'</div>'
+				)
+				//Check if all the tables have been migrated, Migration finished
 				if(migrated_table==overall_total){
-					
+					$("#overall_progress_bar").removeClass("progress-striped");
+					$("#migrate_btn").removeAttr('disabled');//Enable migration button
+					$('<div class="alert alert-success">Migration complete</div>').insertAfter("#migrate_btn");
 					return;
 				}
 				else{//If all the tables have not yet been migrated, continue looping

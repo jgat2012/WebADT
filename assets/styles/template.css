@@ -50,3 +50,11 @@ position: relative;
 .invalid{
 color:red
 }
+
+.select2-container{
+   border:0px !important;
+}
+
+.migration_notification_holder{
+	margin-right: 1% !important;
+}

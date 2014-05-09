@@ -776,6 +776,7 @@ class Migration extends MY_Controller {
 		$response_data['total']=$total;
 		$response_data['message']=$response;
 		$response_data['source_table']=$table;
+		$response_data['current_table']=$source_table;
 		echo json_encode($response_data,JSON_PRETTY_PRINT);
 	}
 	
