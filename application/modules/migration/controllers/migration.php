@@ -39,6 +39,7 @@ class Migration extends MY_Controller {
 
 	public function mapping($facility_code=null,$ccc_pharmacy=null,$source_database=null,$table=null){
 		$key = $this -> encrypt -> get_key();
+		$timestamp=date('Y-m-d H:i:s');
 		//migration table mapping
 		$tables = array(
 			 'Drug Source'=>array(
@@ -142,11 +143,13 @@ class Migration extends MY_Controller {
  	             	'0'=>'UPDATE drugcode dc,drug_unit du 
  	             	      SET dc.unit=du.id 
  	             	      WHERE dc.unit=du.Name
- 	             	      AND du.ccc_store_sp='.$ccc_pharmacy,
+ 	             	      AND du.ccc_store_sp='.$ccc_pharmacy.'
+ 	             	      AND dc.ccc_store_sp='.$ccc_pharmacy,
  	             	'1'=>'UPDATE drugcode dc,generic_name g 
  	             	      SET dc.generic_name=g.id 
  	             	      WHERE dc.generic_name=g.name
- 	             	      AND g.ccc_store_sp='.$ccc_pharmacy)
+ 	             	      AND g.ccc_store_sp='.$ccc_pharmacy.'
+ 	             	      AND dc.ccc_store_sp='.$ccc_pharmacy)
 			 	),
 			 'Drug Brand'=>array(
 			 	'source'=>'tbldrugbrandname',
@@ -160,10 +163,14 @@ class Migration extends MY_Controller {
 			 		'drug_id',
 			 		'brand',
 			 		'ccc_store_sp'),
-			 	'conditions'=>'',
+			 	'conditions'=>'WHERE brandname IS NOT NULL',
 			 	'before'=>array(),
  	            'update'=>array(
- 	            	'0'=>'UPDATE brand,drugcode dc SET drug_id=dc.id WHERE drug_id=dc.drug')
+ 	            	'0'=>'UPDATE brand b,drugcode dc 
+ 	            	      SET b.drug_id=dc.id 
+ 	            	      WHERE b.drug_id=dc.drug
+ 	            	      AND b.ccc_store_sp='.$ccc_pharmacy.'
+ 	             	      AND dc.ccc_store_sp='.$ccc_pharmacy)
 			 	),
 			 'Drug Stock Balance'=>array(
 			 	'source'=>'tbldrugstockbatch',
@@ -192,7 +199,8 @@ class Migration extends MY_Controller {
  	             	'0'=>'UPDATE drug_stock_balance dsb,drugcode dc 
  	             	      SET dsb.drug_id=dc.id 
  	             	      WHERE dsb.drug_id=dc.drug
- 	             	      AND dsb.ccc_store_sp='.$ccc_pharmacy)
+ 	             	      AND dsb.ccc_store_sp='.$ccc_pharmacy.'
+ 	             	      AND dc.ccc_store_sp='.$ccc_pharmacy)
 			 	),
 			 'Dose' =>array(
 			 	'source'=>'tblDose',
@@ -278,14 +286,13 @@ class Migration extends MY_Controller {
 			 'Regimen' => array(
 			 	'source'=>'tblRegimen',
 			 	'source_columns'=>array(
-			 		'regimencode',
-			 		'regimen',
-			 		'line',
-			 		'remarks',
-			 		'category',
-			 		'typeoservice',
-			 		'IF(`show`=0,"0"',
-			 		'1',
+			 		'r.regimencode',
+			 		'r.regimen',
+			 		'r.line',
+			 		'r.remarks',
+			 		'rc.categoryname',
+			 		'rs.typeofservice',
+			 		'IF(`show`=0,"0","1")',
  	            	$ccc_pharmacy),
 			 	'destination'=>'regimen',
 			 	'destination_columns'=>array(
@@ -297,59 +304,74 @@ class Migration extends MY_Controller {
 			 		'type_of_service',
 			 		'enabled',
  	            	'ccc_store_sp'),
-			 	'conditions'=>'',
+			 	'conditions'=>'r LEFT JOIN '.$source_database.'.tblregimencategory rc ON rc.categoryid=r.category LEFT JOIN '.$source_database.'.tbltypeofservice rs ON rs.typeofserviceid=r.typeoservice',
 			 	'before'=>array(),
  	            'update'=>array(
- 	             	'0'=>'UPDATE regimen 
- 	             	      SET enabled="0" 
- 	             	      WHERE regimen_desc=""')
+ 	             	'0'=>'UPDATE regimen r,regimen_category rc
+ 	             	      SET r.category=rc.id 
+ 	             	      WHERE r.category=rc.Name
+ 	             	      AND rc.ccc_store_sp='.$ccc_pharmacy.'
+ 	             	      AND r.ccc_store_sp='.$ccc_pharmacy,
+	         	    '1'=>'UPDATE regimen r,regimen_service_type rst
+	         	          SET r.category=rst.id 
+	         	          WHERE r.category=rst.name
+	         	          AND rst.ccc_store_sp='.$ccc_pharmacy.'
+	         	          AND r.ccc_store_sp='.$ccc_pharmacy)
 			 	), 
 			 'Regimen Drugs' => array(
 			 	'source'=>'tblDrugsInRegimen',
 			 	'source_columns'=>array(
 			 		'regimencode',
 			 		'combinations',
-			 		'1'),
+			 		'1',
+			 		$ccc_pharmacy),
 			 	'destination'=>'regimen_drug',
 			 	'destination_columns'=>array(
 			 		'regimen',
 			 		'drugcode',
-			 		'active'),
-			 	'conditions'=>'',
+			 		'active',
+			 		'ccc_store_sp'),
+			 	'conditions'=>'WHERE regimencode IS NOT NULL AND combinations IS NOT NULL',
 			 	'before'=>array(),
- 	            'update'=>array()
+ 	            'update'=>array(
+ 	            	'0'=>'UPDATE regimen_drug rd,regimen r
+ 	            	      SET rd.regimen=r.id
+ 	            	      WHERE rd.regimen=r.regimen_code
+ 	            	      AND rd.ccc_store_sp='.$ccc_pharmacy.'
+	         	          AND r.ccc_store_sp='.$ccc_pharmacy,
+ 	            	'1'=>'UPDATE regimen_drug rd,drugcode dc
+ 	            	      SET rd.drugcode=dc.id
+ 	            	      WHERE rd.drugcode=dc.drug
+ 	            	      AND rd.ccc_store_sp='.$ccc_pharmacy.'
+	         	          AND dc.ccc_store_sp='.$ccc_pharmacy)
 			 	), 
 			 'Patient Status' => array(
 			 	'source'=>'tblCurrentStatus',
 			 	'source_columns'=>array(
-			 		'currentstatusid',
 			 		'currentstatus',
 			 		'1',
  	            	$ccc_pharmacy),
 			 	'destination'=>'patient_status',
 			 	'destination_columns'=>array(
-			 		'id',
 			 		'Name',
 			 		'Active',
  	            	'ccc_store_sp'),
-			 	'conditions'=>'',
+			 	'conditions'=>'WHERE currentstatus IS NOT NULL',
 			 	'before'=>array(),
  	            'update'=>array()
 			 	), 
 			 'Patient Source' => array(
 			 	'source'=>'tblSourceOfClient',
 			 	'source_columns'=>array(
-			 		'sourceid',
 			 		'sourceofclient',
 			 		'1',
  	            	$ccc_pharmacy),
 			 	'destination'=>'patient_source',
 			 	'destination_columns'=>array(
-			 		'id',
 			 		'name',
 			 		'active',
  	            	'ccc_store_sp'),
-			 	'conditions'=>'',
+			 	'conditions'=>'WHERE sourceofclient IS NOT NULL',
 			 	'before'=>array(),
  	            'update'=>array()
 			 	), 
@@ -367,9 +389,9 @@ class Migration extends MY_Controller {
 			 		'otherdeaseconditions',
 			 		'adrorsideeffects',
 			 		'otherdrugs',
-			 		'typeofservice',
+			 		'ps.typeofservice',
 			 		'STR_TO_DATE(dateofnextappointment, "%Y-%m-%d")',
-			 		'currentstatus',
+			 		'cs.currentstatus',
 			 		'currentregimen',
 			 		'regimenstarted',
 			 		'address',
@@ -378,7 +400,7 @@ class Migration extends MY_Controller {
 			 		'currentbsa',
 			 		'startheight',
 			 		'currentheight',
-			 		'sourceofclient',
+			 		's.sourceofclient',
 			 		'IF(tb=0,"0","1")',
 			 		'STR_TO_DATE(datestartedonart, "%Y-%m-%d")',
 			 		'STR_TO_DATE(datechangedstatus, "%Y-%m-%d")',
@@ -432,7 +454,7 @@ class Migration extends MY_Controller {
 			 		'facility_code',
 			 		'drug_prophylaxis',
  	            	'ccc_store_sp'),
-			 	'conditions'=>'',
+			 	'conditions'=>'p LEFT JOIN '.$source_database.'.tbltypeofservice ps ON ps.typeofserviceid=p.typeofservice LEFT JOIN '.$source_database.'.tblcurrentstatus cs ON cs.currentstatusid=p.currentstatus LEFT JOIN '.$source_database.'.tblsourceofclient s ON s.sourceid=p.sourceofclient',
 			 	'before'=>array(),
  	            'update'=>array(
  	             	'0'=>'UPDATE patient 
@@ -441,12 +463,31 @@ class Migration extends MY_Controller {
  	             	'1'=>'UPDATE patient 
  	             	      SET status_change_date=start_regimen_date 
  	             	      WHERE status_change_date=""',
- 	             	'2'=>'UPDATE patient,regimen r 
- 	             	      SET current_regimen=r.id 
- 	             	      WHERE current_regimen=r.regimen_code',
- 	             	'3'=>'UPDATE patient,regimen r 
- 	             	      SET start_regimen=r.id 
- 	             	      WHERE start_regimen=r.regimen_code')
+ 	             	'2'=>'UPDATE patient p,regimen r 
+ 	             	      SET p.current_regimen=r.id 
+ 	             	      WHERE p.current_regimen=r.regimen_code
+ 	             	      AND p.ccc_store_sp='.$ccc_pharmacy.'
+	         	          AND r.ccc_store_sp='.$ccc_pharmacy,
+ 	             	'3'=>'UPDATE patient p,regimen r 
+ 	             	      SET p.start_regimen=r.id 
+ 	             	      WHERE p.start_regimen=r.regimen_code
+ 	             	      AND p.ccc_store_sp='.$ccc_pharmacy.'
+	         	          AND r.ccc_store_sp='.$ccc_pharmacy,
+ 	             	'4'=>'UPDATE patient p,regimen_service_type rst
+ 	             	      SET p.service=rst.id
+ 	             	      WHERE p.service=rst.name
+ 	             	      AND p.ccc_store_sp='.$ccc_pharmacy.'
+	         	          AND rst.ccc_store_sp='.$ccc_pharmacy,
+ 	             	'5'=>'UPDATE patient p,patient_status ps
+ 	             	      SET p.current_status=ps.id
+ 	             	      WHERE p.current_status=ps.Name
+ 	             	      AND p.ccc_store_sp='.$ccc_pharmacy.'
+	         	          AND ps.ccc_store_sp='.$ccc_pharmacy,
+ 	             	'6'=>'UPDATE patient p,patient_source s
+ 	             	      SET p.source=s.id
+ 	             	      WHERE p.source=s.name
+ 	             	      AND p.ccc_store_sp='.$ccc_pharmacy.'
+	         	          AND s.ccc_store_sp='.$ccc_pharmacy)
 			 	), 
 			 'Patient Appointment' => array(
 			 	'source'=>'tblARTPatientMasterInformation',
@@ -466,14 +507,12 @@ class Migration extends MY_Controller {
 			 'Transaction Type' => array(
 			 	'source'=>'tblStockTransactionType',
 			 	'source_columns'=>array(
-			 		'transactiontype',
 			 		'transactiondescription',
 			 		'reporttitle',
 			 		'1',
  	            	$ccc_pharmacy),
 			 	'destination'=>'transaction_type',
 			 	'destination_columns'=>array(
-			 		'id',
 			 		'name',
 			 		'`desc`',
 			 		'active',
@@ -486,23 +525,21 @@ class Migration extends MY_Controller {
  	             	      WHERE name LIKE "%Starting%" 
  	             	      OR name LIKE "%+%" 
  	             	      OR name LIKE "%Forward%" 
- 	             	      OR name LIKE "%Received%"')
+ 	             	      OR name LIKE "%Received%"
+	         	          AND ccc_store_sp='.$ccc_pharmacy)
 			 	), 
 			 'Visit Purpose' => array(
 			 	'source'=>'tblVisitTransaction',
 			 	'source_columns'=>array(
-			 		'transactiontype',
-			 		'transactiondescription',
-			 		'reporttitle',
+			 		'visittranname',
 			 		'1',
  	            	$ccc_pharmacy),
 			 	'destination'=>'visit_purpose',
 			 	'destination_columns'=>array(
-			 		'id',
 			 		'name',
 			 		'active',
  	            	'ccc_store_sp'),
-			 	'conditions'=>'',
+			 	'conditions'=>'WHERE visittranname IS NOT NULL',
 			 	'before'=>array(),
  	            'update'=>array()
 			 	), 
@@ -511,12 +548,12 @@ class Migration extends MY_Controller {
 			 	'source_columns'=>array(
 			 		'name',
 			 		'userid',
-			 		'md5(concat('.$key.',password))',
+			 		'md5(concat("'.$key.'",password))',
 			 		'IF(UCASE(authoritylevel)="USER","2","3")',
 			 		$facility_code,
 			 		'1',
 			 		'1',
-			 		date('Y-m-d H:i:s'),
+			 		'"'.$timestamp.'"',
  	            	$ccc_pharmacy),
 			 	'destination'=>'users',
 			 	'destination_columns'=>array(
@@ -531,7 +568,11 @@ class Migration extends MY_Controller {
  	            	'ccc_store_sp'),
 			 	'conditions'=>'',
 			 	'before'=>array(),
- 	            'update'=>array()
+ 	            'update'=>array(
+ 	            	'0'=>'UPDATE users
+ 	            	      SET Facility_Code='.$facility_code.',
+ 	            	      ccc_store_sp='.$ccc_pharmacy.'
+ 	            	      WHERE id IN(1,2)')
 			 	), 
 			 'Drug Transactions' => array(
 			 	'source'=>'tblARVDrugStockTransactions',
