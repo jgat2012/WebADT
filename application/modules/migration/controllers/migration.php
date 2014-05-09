@@ -601,7 +601,8 @@ class Migration extends MY_Controller {
 			 		'order_number',
 			 		'batch_number',
 			 		'transaction_type',
-			 		'source','destination',
+			 		'source',
+			 		'destination',
 			 		'expiry_date',
 			 		'packs',
 			 		'unit_cost',
@@ -614,7 +615,7 @@ class Migration extends MY_Controller {
  	            	'ccc_store_sp'),
 			 	'conditions'=>'',
 			 	'before'=>array(),
- 	            'update'=>array()
+ 	            'update'=>array('')
 			 	),
 			 'Patient Transactions' => array(
 			 	'source'=>'tblARTPatientTransactions',
