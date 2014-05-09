@@ -50,3 +50,7 @@ position: relative;
 .invalid{
 color:red
 }
+
+.select2-container{
+   border:0px !important;
+}

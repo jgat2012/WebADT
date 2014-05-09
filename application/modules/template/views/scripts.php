@@ -47,6 +47,10 @@
 	<!-- FastClick: For mobile devices -->
 	<script src="<?php echo base_url();?>assets/scripts/plugin/fastclick/fastclick.js"></script>
 	
+	<!-- REPLACEMENT SELECT BOX -->
+	<script src="<?php echo base_url();?>assets/scripts/select2-3.4.8/select2.js"></script>
+	
+	
 	<!--[if IE 7]>
 		
 		<h1>Your browser is out of date, please update your browser by going to www.microsoft.com/download</h1>
