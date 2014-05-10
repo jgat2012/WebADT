@@ -79,19 +79,18 @@
 			</div> <!-- / .panel-heading -->
 			<div class="panel-body tab-content-padding">
 				<!-- Panel padding, without vertical padding -->
-				<div class="row" style="position: relative;width: auto; height: 25%;">
+				<div class="row" style="position: relative;width: auto; height: 25%; padding: 0% 1% 0% 1%;">
 					<div class="panel-padding no-padding-vr" style="overflow: hidden; width: auto; height: auto;">
 						<label>Overall Progress</label>
-						<div class="progress progress-striped active">
+						<div id="overall_progress_bar" class="progress active">
 						  <div id="migration_overall_progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
 						    0%
 						  </div>
 						</div>
 						<hr size="2">
-						<div id="migrate_table_result_holder" style="position: relative; overflow: scroll; width: auto; height: 70%;">
-							
+
+						<div id="migrate_table_result_holder" style="position: relative; overflow-y: scroll; width: auto; height: 60%;">
 					    </div>
-						 
 					</div>
 				</div>
 			</div> <!-- / .panel-body -->

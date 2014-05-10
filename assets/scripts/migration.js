@@ -87,6 +87,10 @@ $(function() {
 	
 	//When Start Migration button clicked
 	$( "#fmMigration" ).submit(function( event ) {
+
+    $("#overall_progress_bar").addClass("progress-striped");
+    $("#migrate_table_result_holder").empty();//Clear list of tables
+    $("#migrate_btn").attr('disabled', 'disabled'); //Disable button
 		
 	//Reset progress bar
 	$("#migration_overall_progress").text('0%');
@@ -181,6 +185,7 @@ function migrate(source_table, table_counter, overall_total, facility_code,ccc_p
 	}
 	var over_progress = (migrated_table/overall_total) *100; //Overall percentage
 	over_progress = Math.round(over_progress);
+
 	var link = 'migration/migrate';
 	$.ajax({
 		url : link,
@@ -212,7 +217,7 @@ function migrate(source_table, table_counter, overall_total, facility_code,ccc_p
 				var width_table_migration_progress = table_migration_progress+"%";
 				//If table has not finished migrating, increment table progress bar
 				$("#migrate_table_result_holder").append(
-					'<div class="ticket" id="'+current_table+'"></div>'
+					'<div class="ticket migration_notification_holder" id="'+current_table+'"></div>'
 				)
 				
 				$("#"+current_table+"").html(
@@ -242,14 +247,16 @@ function migrate(source_table, table_counter, overall_total, facility_code,ccc_p
 				
 				
 				$("#migrate_table_result_holder").append(
-					'<div class="ticket" id="'+current_table+'">'+
+					'<div class="ticket migration_notification_holder" id="'+current_table+'">'+
 						'<span class="label label-'+msg_color+' ticket-label">'+message+'</span>'+
-						'<a href="#" title="" class="ticket-title">'+source_table+'</a>'+
+						'<span title="" class="ticket-title">'+source_table+'</span>'+
 					'</div>'
 				)
-				//Check if all the tables have been migrated
+				//Check if all the tables have been migrated, Migration finished
 				if(migrated_table==overall_total){
-					
+					$("#overall_progress_bar").removeClass("progress-striped");
+					$("#migrate_btn").removeAttr('disabled');//Enable migration button
+					$('<div class="alert alert-success">Migration complete</div>').insertAfter("#migrate_btn");
 					return;
 				}
 				else{//If all the tables have not yet been migrated, continue looping
@@ -260,12 +267,6 @@ function migrate(source_table, table_counter, overall_total, facility_code,ccc_p
 				
 				
 			}
-			
-			
-			
-			
-			
-			
 		}
 	});
 }
