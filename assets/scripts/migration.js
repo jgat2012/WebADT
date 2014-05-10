@@ -264,12 +264,6 @@ function migrate(source_table, table_counter, overall_total, facility_code,ccc_p
 				
 				
 			}
-			
-			
-			
-			
-			
-			
 		}
 	});
 }

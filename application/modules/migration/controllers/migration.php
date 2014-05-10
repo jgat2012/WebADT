@@ -389,7 +389,7 @@ class Migration extends MY_Controller {
 			 		'otherdeaseconditions',
 			 		'adrorsideeffects',
 			 		'otherdrugs',
-			 		'ps.typeofservice',
+			 		'rst.id',
 			 		'STR_TO_DATE(dateofnextappointment, "%Y-%m-%d")',
 			 		'cs.currentstatus',
 			 		'currentregimen',
@@ -454,7 +454,11 @@ class Migration extends MY_Controller {
 			 		'facility_code',
 			 		'drug_prophylaxis',
  	            	'ccc_store_sp'),
-			 	'conditions'=>'p LEFT JOIN '.$source_database.'.tbltypeofservice ps ON ps.typeofserviceid=p.typeofservice LEFT JOIN '.$source_database.'.tblcurrentstatus cs ON cs.currentstatusid=p.currentstatus LEFT JOIN '.$source_database.'.tblsourceofclient s ON s.sourceid=p.sourceofclient',
+			 	'conditions'=>'p 
+			 	LEFT JOIN '.$source_database.'.tbltypeofservice ps ON ps.typeofserviceid=p.typeofservice 
+			 	LEFT JOIN  regimen_service_type rst ON ps.typeofservice=rst.name AND rst.ccc_store_sp='.$ccc_pharmacy.'
+			 	LEFT JOIN '.$source_database.'.tblcurrentstatus cs ON cs.currentstatusid=p.currentstatus 
+			 	LEFT JOIN '.$source_database.'.tblsourceofclient s ON s.sourceid=p.sourceofclient',
 			 	'before'=>array(),
  	            'update'=>array(
  	             	'0'=>'UPDATE patient 
@@ -473,17 +477,12 @@ class Migration extends MY_Controller {
  	             	      WHERE p.start_regimen=r.regimen_code
  	             	      AND p.ccc_store_sp='.$ccc_pharmacy.'
 	         	          AND r.ccc_store_sp='.$ccc_pharmacy,
- 	             	'4'=>'UPDATE patient p,regimen_service_type rst
- 	             	      SET p.service=rst.id
- 	             	      WHERE p.service=rst.name
- 	             	      AND p.ccc_store_sp='.$ccc_pharmacy.'
-	         	          AND rst.ccc_store_sp='.$ccc_pharmacy,
- 	             	'5'=>'UPDATE patient p,patient_status ps
+ 	             	'4'=>'UPDATE patient p,patient_status ps
  	             	      SET p.current_status=ps.id
  	             	      WHERE p.current_status=ps.Name
  	             	      AND p.ccc_store_sp='.$ccc_pharmacy.'
 	         	          AND ps.ccc_store_sp='.$ccc_pharmacy,
- 	             	'6'=>'UPDATE patient p,patient_source s
+ 	             	'5'=>'UPDATE patient p,patient_source s
  	             	      SET p.source=s.id
  	             	      WHERE p.source=s.name
  	             	      AND p.ccc_store_sp='.$ccc_pharmacy.'
@@ -577,92 +576,115 @@ class Migration extends MY_Controller {
 			 'Drug Transactions' => array(
 			 	'source'=>'tblARVDrugStockTransactions',
 			 	'source_columns'=>array(
-			 		'arvdrugsid',
+			 		'dc.id',
 			 		'STR_TO_DATE(trandate, "%Y-%m-%d")',
-			 		'reforderno',
 			 		'batchno',
-			 		'transactiontype',
+			 		't.id',
 			 		$facility_code,
 			 		$facility_code,
+			 		'IF(t.effect="1",dsk.id,dsm.sourceordestination)',
 			 		'STR_TO_DATE(expirydate, "%Y-%m-%d")',
 			 		'npacks',
-			 		'unitcost',
-			 		'IF(t.effect="0",qty,"0")',
 			 		'IF(t.effect="1",qty,"0")',
+			 		'IF(t.effect="0",qty,"0")',
+			 		'runningstock',
+			 		'unitcost',
 			 		'amount',
 			 		'remarks',
 			 		'operator',
+			 		'reforderno',
 			 		$facility_code,
- 	            	$ccc_pharmacy),
+			 		$ccc_pharmacy),
 			 	'destination'=>'drug_stock_movement',
 			 	'destination_columns'=>array(
 			 		'drug',
 			 		'transaction_date',
-			 		'order_number',
 			 		'batch_number',
 			 		'transaction_type',
 			 		'source',
 			 		'destination',
+			 		'Source_Destination',
 			 		'expiry_date',
 			 		'packs',
-			 		'unit_cost',
 			 		'quantity',
 			 		'quantity_out',
+			 		'balance',
+			 		'unit_cost',
 			 		'amount',
 			 		'remarks',
 			 		'operator',
-			 		'facility',
- 	            	'ccc_store_sp'),
-			 	'conditions'=>'',
+			 		'order_number',	
+			 		'facility', 
+			 		'ccc_store_sp'),
+			 	'conditions'=>'dsm 
+			 	LEFT JOIN drugcode dc ON dc.drug=dsm.arvdrugsid AND dc.ccc_store_sp='.$ccc_pharmacy.' 
+			 	LEFT JOIN '.$source_database.'.tblstocktransactiontype b ON b.transactiontype = dsm.transactiontype 
+			 	LEFT JOIN transaction_type t ON t.name = b.transactiondescription AND t.ccc_store_sp='.$ccc_pharmacy.'
+			 	LEFT JOIN '.$source_database.'.tblsource ds ON ds.scode=dsm.sourceordestination
+			 	LEFT JOIN drug_source dsk ON dsk.name=ds.source AND dsk.ccc_store_sp='.$ccc_pharmacy, 
 			 	'before'=>array(),
- 	            'update'=>array('')
+ 	            'update'=>array()
 			 	),
 			 'Patient Transactions' => array(
 			 	'source'=>'tblARTPatientTransactions',
 			 	'source_columns'=>array(
 			 		'artid',
-			 		'STR_TO_DATE(tp.dateofvisit, "%Y-%m-%d")',
-			 		'drugname',
-			 		'brandname',
-			 		'transactioncode',
-			 		'arvqty',
-			 		'dose',
-			 		'duration',
-			 	    'regimen',
-			 		'lastregimen',
-			 		'comment',
-			 		'operator',
-			 		'indication',
+			 		'v.id',
 			 		'weight',
-			 		'pillcount',
-			 		'pillcount',
-			 		'adherence',
-			 		'reasonsforchange',
+			 		'cr.id',
+			 		'rcp.id',
+			 		'dc.id',
 			 		'batchno',
-			 		$facility_code),
+			 		'b.id',
+			 		'indication',
+			 		'pillcount',
+			 		'pv.comment',
+			 		'operator',
+			 		$facility_code,
+			 		'pv.dose',
+			 		'STR_TO_DATE(dateofvisit, "%Y-%m-%d")',
+			 		'arvqty',
+			 		'lr.id',			 		
+			 		'pv.duration',
+			 		'pillcount',
+			 		'adherence',	
+			 		'1',
+			 		$ccc_pharmacy 		
+			 		),
 			 	'destination'=>'patient_visit',
 			 	'destination_columns'=>array(
 			 		'patient_id',
-			 		'dispensing_date',
-			 		'drug_id',
-			 		'brand',
 			 		'visit_purpose',
-			 		'quantity',
-			 		'dose',
-			 		'duration',
+			 		'current_weight',
 			 		'regimen',
-			 		'last_regimen',
+			 		'regimen_change_reason',
+			 		'drug_id',
+			 		'batch_number',
+			 		'brand',
+			 		'indication',
+			 		'pill_count',
 			 		'comment',
 			 		'user',
-			 		'indication',
-			 		'current_weight',
-			 		'pill_count',
+			 		'facility',
+			 		'dose',
+			 		'dispensing_date',	
+			 		'quantity',
+			 		'last_regimen',			 		
+			 		'duration',
 			 		'months_of_stock',
 			 		'adherence',
-			 		'regimen_change_reason',
-			 		'batch_number',
-			 		'facility'),
-			 	'conditions'=>'',
+			 		'active',
+			 		'ccc_store_sp'
+			 		),
+			 	'conditions'=>'pv 
+			 	LEFT JOIN '.$source_database.'.tblvisittransaction v ON v.transactioncode=pv.transactioncode
+                LEFT JOIN regimen_change_purpose rcp ON pv.reasonsforchange=rcp.name AND rcp.ccc_store_sp='.$ccc_pharmacy.'
+			 	LEFT JOIN drugcode dc ON pv.drugname=dc.drug AND dc.ccc_store_sp='.$ccc_pharmacy.'
+			 	LEFT JOIN brand b ON pv.brandname=b.brand AND b.ccc_store_sp='.$ccc_pharmacy.'
+			 	LEFT JOIN regimen cr ON pv.regimen=cr.regimen_code AND cr.ccc_store_sp='.$ccc_pharmacy.'
+			 	LEFT JOIN regimen lr ON pv.lastregimen=lr.regimen_code AND lr.ccc_store_sp='.$ccc_pharmacy.'
+			 	LEFT JOIN '.$source_database.'.tblvisittransaction vt ON vt.transactioncode=pv.transactioncode
+			 	LEFT JOIN visit_purpose v ON vt.visittranname=v.name AND v.ccc_store_sp='.$ccc_pharmacy,
 			 	'before'=>array(),
  	            'update'=>array()
 			 	)
@@ -721,6 +743,11 @@ class Migration extends MY_Controller {
 	    if($destination_table=="patient_visit" || $destination_table=="drug_stock_movement"){
 	    	//set limit to 10000 for patient_visit and drug_stock_movement tables
 	    	$limit=" LIMIT 10000";
+	    	if($destination_table=="patient_visit"){
+	    		$conditions.=" WHERE patienttranno >$offset";
+	    	}else if($destination_table=="drug_stock_movement"){
+	    		$conditions.=" WHERE stocktranno >$offset";
+	    	}
 	    }
 
 		//generate sql and execute
@@ -729,20 +756,69 @@ class Migration extends MY_Controller {
 		$sql.=" FROM ".$source_database.".".$source_table;
 		$sql.=" ".$conditions.$limit;
         $this->db->query($sql);
+
+        //unset conditions if patient_visit and drug_stock_movement
+        if($destination_table=="patient_visit" || $destination_table=="drug_stock_movement"){
+            $conditions="";
+        }
         
     	//count records in source table
 		$sql = "SELECT COUNT(*) as total FROM $source_database.$source_table $conditions";
 	    $query = $this -> db -> query($sql);
 	    $results = $query -> result_array();
 	    if($results){
-	      $total =$results[0]['total'];
-	      $last_index =$results[0]['total'];
-	      if($last_index==$count){
-              $response="Migration[".$table."] Failed:All data is already migrated!";
-	      }else{
-	      	  $response="Migration[".$table."] Success:Data migrated from source(".$source_table.") to destination(".$destination_table.")!";
-	      }
-	      $count =$results[0]['total'];
+	    	if($destination_table=="patient_visit" || $destination_table=="drug_stock_movement"){
+	    		//get total for large tables
+                $total =$results[0]['total'];
+                //count rows for large tables
+                if($destination_table=="patient_visit"){
+	                $count_sql="SELECT patienttranno 
+	                        	FROM $source_database.tblartpatienttransactions
+	                        	WHERE patienttranno <=$offset";
+	                $offset_sql="SELECT temp.patienttranno as max 
+			                     FROM (SELECT patienttranno 
+			                     	   FROM $source_database.tblartpatienttransactions
+			                     	   WHERE patienttranno >=$offset 
+			                     	   LIMIT 10000) as temp 
+			                     ORDER BY temp.patienttranno DESC 
+			                     LIMIT 1";
+	            }else if($destination_table=="drug_stock_movement"){
+	                $count_sql="SELECT stocktranno 
+	                        	FROM $source_database.tblarvdrugstocktransactions
+	                        	WHERE stocktranno <=$offset";
+	                $offset_sql="SELECT temp.stocktranno as max 
+			                     FROM (SELECT stocktranno 
+			                     	   FROM $source_database.tblarvdrugstocktransactions
+			                     	   WHERE stocktranno >=$offset 
+			                     	   LIMIT 10000) as temp 
+			                     ORDER BY temp.stocktranno DESC 
+			                     LIMIT 1";
+
+	            }
+                $query = $this -> db -> query($count_sql);
+                $count = $query -> num_rows();
+                //get last index for large tables
+			    $query = $this -> db -> query($offset_sql);
+			    $results = $query -> result_array();
+			    if($results){
+			       $last_index = $results[0]['max'];
+			    }
+			    //compare count and total
+			    if($count==$total){
+                   $response="Migration[".$table."] Complete:All data is migrated!";
+			    }else{
+			       $response="Migration[".$table."] In progress:Available data is currently being migrated!";
+			    }
+	    	}else{
+		      $total =$results[0]['total'];
+		      $last_index =$results[0]['total'];
+		      if($last_index==$count){
+	              $response="Migration[".$table."] Failed:All data is already migrated!";
+		      }else{
+		      	  $response="Migration[".$table."] Success:Data migrated from source(".$source_table.") to destination(".$destination_table.")!";
+		      }
+		      $count =$results[0]['total'];
+	        }
 	    }else{
 	    	//response if failed not data in source table
           $response="Migration[".$table."] Failed:No data is present at source table!";
