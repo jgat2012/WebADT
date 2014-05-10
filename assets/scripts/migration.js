@@ -39,7 +39,10 @@ $(function() {
 	
 	
 	//Facility selection filtering
-	$("#facility_code").select2();
+	$("#facility_code").select2({
+		
+		
+	});
 	$("#ccc_pharmacy").select2();
 	$("#source_database").select2();
 	
