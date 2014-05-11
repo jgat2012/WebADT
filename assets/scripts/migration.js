@@ -39,10 +39,7 @@ $(function() {
 	
 	
 	//Facility selection filtering
-	$("#facility_code").select2({
-		
-		
-	});
+	$("#facility_code").select2({});
 	$("#ccc_pharmacy").select2();
 	$("#source_database").select2();
 	
@@ -80,7 +77,11 @@ $(function() {
 		$( ".no_table_selected" ).remove();//Remobe error message for table not selected from dom
 		var check = checkTableSelected();
 		if(check == 0){
+			$("#migrate_btn").attr('disabled', 'disabled');
 			$("<em class='invalid' id='no_table_selected'>Please select at least one table to migrate !</em>").insertAfter(".btn-group");
+		}
+		else{
+			$("#migrate_btn:disabled").removeAttr('disabled');
 		}
 	});
 	
@@ -102,6 +103,7 @@ $(function() {
 	 $( "#no_ccc_pharmacy" ).remove();//Remobe error message for table not selected from dom
 	  event.preventDefault();
 	  var selectedTables = checkTableSelected();
+	  
 	  if(selectedTables!=0){//If table validation works, meaning at least one tabe, submit data
 	  	var btn = $("#migration_btn");
 	    btn.button('Migrating ...');
@@ -158,34 +160,30 @@ function startMigration(facility_code,ccc_pharmacy,database,selected_tables) {
 		overall_total = overall_total - 1;
 	}
 	//exclude select all
-	getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database);
+	getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database,0);
 }
 
 
 //Function to check current table being migrated and its index
-function getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database){
+function getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database,migrated_tables){
 	var index = table_counter;
 	var current_table = selected_tables[index];
 	if(current_table == "multiselect-all") { //If select all option is selected, increment the index
 		table_counter++;
-		getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database);
+		getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database,0);
 		return;
 		
 	}else{
 		//Check Migration Log
-		migrate(current_table, table_counter, overall_total,facility_code,ccc_pharmacy,database,selected_tables);
+		migrate(current_table, table_counter, overall_total,facility_code,ccc_pharmacy,database,selected_tables,migrated_tables);
 		//return;
 	}
+	
 }
 
 //function to start migration
-function migrate(source_table, table_counter, overall_total, facility_code,ccc_pharmacy,database,selected_tables) {
-	if(table_counter==0){
-		migrated_table = 1;
-	}
-	var over_progress = (migrated_table/overall_total) *100; //Overall percentage
-	over_progress = Math.round(over_progress);
-
+function migrate(source_table, table_counter, overall_total, facility_code,ccc_pharmacy,database,selected_tables,migrated_tables) {
+	
 	var link = 'migration/migrate';
 	$.ajax({
 		url : link,
@@ -198,40 +196,51 @@ function migrate(source_table, table_counter, overall_total, facility_code,ccc_p
 			"table" : source_table
 		},
 		success : function(data) {
+			alert(migrated_tables)
+			var current_table = data.current_table;//Table that has just been migrated
+			var source_table = data.source_table;
 			var count = data.count; //Total number of migrated data
 			var total = data.total; //Total data to be migrated
 			var message = data.message; 
-			var source_table = data.source_table;
-			var current_table = data.current_table; 
-			width_overall = over_progress+"%";
-			//Update progress bar
-			$("#migration_overall_progress").text(width_overall);
-			$("#migration_overall_progress").attr("aria-valuenow",over_progress);
-			$("#migration_overall_progress").css("width",width_overall);
+			
+			
+			//Calculate table migration progress
+			var table_migration_progress = (count/total) *100;
+			table_migration_progress = Math.round(table_migration_progress);
+			var width_table_migration_progress = table_migration_progress+"%";
+			console.log('table: '+current_table+', '+count+' - '+total);
 			
 			//If count is not equal to total( table has not finishhed migrating), run migration for same table
 			if(count!=total){
-				//Calculate table migration progress
-				var table_migration_progress = (count/total) *100;
-				table_migration_progress = Math.round(table_migration_progress);
-				var width_table_migration_progress = table_migration_progress+"%";
-				//If table has not finished migrating, increment table progress bar
-				$("#migrate_table_result_holder").append(
-					'<div class="ticket migration_notification_holder" id="'+current_table+'"></div>'
-				)
 				
+				if(count==0){//Display row when table starts migration
+					$("#migrate_table_result_holder").append(
+						'<div class="ticket migration_notification_holder" id="'+current_table+'"></div>'
+					)
+				}
+				
+				
+				//Table progress bar
 				$("#"+current_table+"").html(
 					'<div class="progress  ticket-label" style="width: 30%">'+
 					  '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="'+table_migration_progress+'" aria-valuemin="0" aria-valuemax="100" style="width:'+width_table_migration_progress+'">'+
 					    '<span >'+width_table_migration_progress+' Complete</span>'+
 					  '</div>'+
-					'</div>'
+					'</div>'+
+					'<span title="" class="ticket-title">'+source_table+'</span>'
 				)
-				
-				getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database);
+				getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database,migrated_tables);
 			}
-			else{
+			else{//Check if current table has finished migration
 				$("#"+current_table+"").remove();
+				migrated_tables++;
+				var overall_progress = (migrated_tables/overall_total) *100; //Overall percentage
+				overall_progress = Math.round(overall_progress); 
+				width_overall = overall_progress+"%";
+				//Update overall progress bar
+				$("#migration_overall_progress").text(width_overall);
+				$("#migration_overall_progress").attr("aria-valuenow",overall_progress);
+				$("#migration_overall_progress").css("width",width_overall);
 				
 				var msg_failed = 'No data is present at source table';
 				var msg_success = 'Success:Data migrated';
@@ -253,20 +262,25 @@ function migrate(source_table, table_counter, overall_total, facility_code,ccc_p
 					'</div>'
 				)
 				//Check if all the tables have been migrated, Migration finished
-				if(migrated_table==overall_total){
+				if(migrated_tables==overall_total){
 					$("#overall_progress_bar").removeClass("progress-striped");
 					$("#migrate_btn").removeAttr('disabled');//Enable migration button
-					$('<div class="alert alert-success">Migration complete</div>').insertAfter("#migrate_btn");
+					$('#migration_complete_msg').html(
+					'<div class="alert alert-info alert-dismissable">'+
+					  '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'+
+					  '<strong ><i class="fa fa-check"></i> Migration complete! '+
+					'</div>');
 					return;
 				}
-				else{//If all the tables have not yet been migrated, continue looping
+				else{//If all the tables have not yet been migrated, continue looping by incrementing the counter
 					table_counter++;
-					migrated_table++;
-					getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database);
+					//migrated_table++;
+					getCurrentTable(table_counter,selected_tables,overall_total,facility_code,ccc_pharmacy,database,migrated_tables);
 				}
 				
 				
 			}
+			
 		}
 	});
 }

@@ -2,14 +2,15 @@
 <!-- REPLACEMENT SELECT BOX -->
 <link href="<?php echo base_url();?>assets/styles/select2-3.4.8/select2.css" rel="stylesheet"/>
 
-<!-- Basic Styles -->
-<link rel="stylesheet" type="text/css" media="screen" href="<?php echo base_url();?>assets/styles/bootstrap.min.css">	
-<link rel="stylesheet" type="text/css" media="screen" href="<?php echo base_url();?>assets/styles/font-awesome/css/font-awesome.min.css">
+
 
 <!-- SmartAdmin Styles : Please note (smartadmin-production.css) was created using LESS variables -->
 <link rel="stylesheet" type="text/css" media="screen" href="<?php echo base_url();?>assets/styles/smartadmin-production.css">
 <link rel="stylesheet" type="text/css" media="screen" href="<?php echo base_url();?>assets/styles/smartadmin-skins.css">	
 
+<!-- Basic Styles -->
+<link rel="stylesheet" type="text/css" media="screen" href="<?php echo base_url();?>assets/styles/bootstrap.min.css">	
+<link rel="stylesheet" type="text/css" media="screen" href="<?php echo base_url();?>assets/styles/font-awesome/css/font-awesome.min.css">
 
 <link rel="stylesheet" type="text/css" media="screen" href="<?php echo base_url();?>assets/styles/template.css">
 <link rel="stylesheet" type="text/css" media="screen" href="<?php echo base_url();?>assets/styles/widgets.min.css">

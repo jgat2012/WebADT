@@ -1,12 +1,6 @@
 <div class="container-fluid">
 	<!-- Login header -->
-	<div class="row login_header">
-		<div class="col-md-6 col-md-offset-3">
-			<img class="img-responsive align_center" src="assets/img/nascop.jpg" alt="Web ADT">
-			
-			<hr size="2">
-		</div>
-	</div>
+	<?php echo $this->load->view('header_login');?>
 	<!-- Login header end -->
 	
 	
@@ -21,7 +15,7 @@
 					<fieldset>
 						
 						<section>
-							<label class="label">E-mail</label>
+							<label class="label">Please Enter your E-mail / Username</label>
 							<label class="input"> <i class="icon-append fa fa-user"></i>
 								<input type="email" name="email">
 								<b class="tooltip tooltip-top-right"><i class="fa fa-user txt-color-teal"></i> Please enter email address/username</b></label>
@@ -33,14 +27,8 @@
 								<input type="password" name="password">
 								<b class="tooltip tooltip-top-right"><i class="fa fa-lock txt-color-teal"></i> Enter your password</b> </label>
 							<div class="note">
-								<a href="forgotpassword.html">Forgot password?</a>
+								<a href="<?php echo base_url();?>user/forgot_pass">Forgot password?</a>
 							</div>
-						</section>
-		
-						<section>
-							<label class="checkbox">
-								<input type="checkbox" name="remember" checked="">
-								<i></i>Stay signed in</label>
 						</section>
 					</fieldset>
 					<footer>

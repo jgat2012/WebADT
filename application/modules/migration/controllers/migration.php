@@ -805,7 +805,7 @@ class Migration extends MY_Controller {
 			    }
 			    //compare count and total
 			    if($count==$total){
-                   $response="Migration[".$table."] Complete:All data is migrated!";
+                   $response="Migration[".$table."] Success:Data migrated from source(".$source_table.") to destination(".$destination_table.")!";
 			    }else{
 			       $response="Migration[".$table."] In progress:Available data is currently being migrated!";
 			    }

@@ -12,7 +12,7 @@
 		<?php $this -> load -> view('styles');?>
 	</head>
 	<body id="body">
-		<div class="container-fluid">
+		<div id="wrap">
 			<!--Load Menu-->
 			<?php
 			if (isset($hide_menu)) {
@@ -23,39 +23,16 @@
 			}
 			?>
 			<!--Load Side Menu-->
-			<div id="body_wrapper" class="row">
-				<?php
-               if (isset($hide_sidemenu)) {//If side is to be displayed, show it
-				?>
-				<div class="col-md-12">
-					<?php
-					//load content
-					$this -> load -> view(@$content_view);
-					?>
+			<div class="container-fluid">
+				<div id="body_wrapper" class="row">
+					
 				</div>
-				
-				<?php
-				}else{
-				?>
-				<div class="col-md-3">
-					<?php
-					$this -> load -> view('sidemenu');
-					?>
-				</div>
-				<div class="col-md-9">
-					<?php
-					//load content
-					$this -> load -> view(@$content_view);
-					?>
-				</div>
-				<?php
-				}
-				?>
-				<!--Load Footer-->
-				<?php $this -> load -> view('footer');?>
 			</div>
 			
 		</div>
+		<!--Load Footer-->
+		<?php $this -> load -> view('footer');?>
+		
 		<!--Load scripts-->
 		<?php $this -> load -> view('scripts');?>
 	</body>
