@@ -1,7 +1,9 @@
  
 #body{
 	margin:0;
+	
 }
+
 #top_menu {
 	min-width: 200px;
 	height: 60px;
@@ -34,6 +36,9 @@ text-align:center;
 .align_center{
 	margin:0 auto;
 }
+.table{
+	font-size: 12px !important;
+}
 
 .widget-support-tickets .ticket-label {
 display: block;
@@ -57,7 +62,7 @@ position: relative;
 }
 
 #header_menu{
-	
+	min-height: 15%;
 }
 
 #main_menu_collapse{

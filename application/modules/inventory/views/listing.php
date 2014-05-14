@@ -3,7 +3,7 @@
 	
 	<div class="row jarviswidget jarviswidget-color-darken" id="wid-id-0" data-widget-editbutton="true">
 		<header>
-			<span class="widget-icon"> <i class="fa fa-table"></i> </span>
+			<span class="widget-icon"> <i class="fa fa-archive"></i> </span>
 			<h2>Inventory Summary </h2>
 		</header>
 		<div class="row">
@@ -69,7 +69,7 @@
 										</label>	
 									</td>
 									<td>
-										<label class="">
+										<label class="input">
 											<input type="text" name="" placeholder="No filter" class="col-sm-8" disabled="">
 										</label>
 									</td>
