@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="row col-md-8 col-md-offset-2" id="migration_complete_msg"></div>
   <div class="row col-md-8 col-md-offset-2">
-  	<form id="fmMigration" action="migrate/migrate" method="post">
+  	<form id="fmMigration" action="migration/migrate" method="post">
 	  	<div class="panel panel-success">
 	  		<div class="panel-heading">
 				<span class="panel-title"><i class="panel-title-icon fa fa-tag"></i> Migration Settings</span>
@@ -99,3 +99,5 @@
 	  </div>
 </div>
 
+	
+	<script src="<?php echo base_url();?>assets/scripts/migration.js"></script>

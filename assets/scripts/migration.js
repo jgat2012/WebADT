@@ -1,8 +1,6 @@
 $(function() {
 	
 	
-	
-	
 	// Validate the migration form
 	$("#fmMigration").validate({
 		// Rules for form validation

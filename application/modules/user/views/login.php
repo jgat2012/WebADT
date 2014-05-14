@@ -1,6 +1,6 @@
 <div class="container-fluid">
 	<!-- Login header -->
-	<?php echo $this->load->view('header_login');?>
+	<?php echo $this->load->view('user/header_login');?>
 	<!-- Login header end -->
 	
 	

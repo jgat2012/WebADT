@@ -1147,7 +1147,7 @@ if($.navAsAjax)
 {
     // fire this on page load if nav exists
     if ($('nav').length) {
-	    checkURL();
+	    //checkURL();
     };
 
     $(document).on('click', 'nav a[href!="#"]', function(e) {
@@ -1208,7 +1208,7 @@ if($.navAsAjax)
 
     // DO on hash change
     $(window).on('hashchange', function() {
-	    checkURL();
+	    //checkURL();
     });
 }
 
@@ -1217,7 +1217,7 @@ function checkURL() {
 
 	//get the url by removing the hash
 	var url = location.hash.replace(/^#/, '');
-
+	alert(url)
 	container = $('#content');
 	// Do this if url exists (for page refresh, etc...)
 	if (url) {
