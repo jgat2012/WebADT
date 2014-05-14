@@ -57,7 +57,6 @@
 		
 	<![endif]-->
 	
-	<!-- BOOTSTRAP MIGRATION JS -->		
 	<script src="<?php echo base_url();?>assets/scripts/migration.js"></script>
 	
 	<!-- MAIN APP JS FILE -->
