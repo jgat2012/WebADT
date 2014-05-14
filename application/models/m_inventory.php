@@ -1,6 +1,6 @@
 <?php
 
-class Test extends My_Model {
+class M_Inventory extends My_Model {
 
 	function __construct() {
 		parent::__construct();

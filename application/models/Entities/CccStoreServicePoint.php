@@ -35,6 +35,13 @@ class CccStoreServicePoint
      */
     private $active;
 
+    /**
+     * @var integer
+     *
+     * @Column(name="store", type="integer", nullable=false)
+     */
+    private $store;
+
 
     /**
      * Get id
@@ -90,5 +97,28 @@ class CccStoreServicePoint
     public function getActive()
     {
         return $this->active;
+    }
+
+    /**
+     * Set store
+     *
+     * @param integer $store
+     * @return CccStoreServicePoint
+     */
+    public function setStore($store)
+    {
+        $this->store = $store;
+    
+        return $this;
+    }
+
+    /**
+     * Get store
+     *
+     * @return integer 
+     */
+    public function getStore()
+    {
+        return $this->store;
     }
 }
