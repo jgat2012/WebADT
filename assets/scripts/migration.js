@@ -194,7 +194,7 @@ function migrate(source_table, table_counter, overall_total, facility_code,ccc_p
 			"table" : source_table
 		},
 		success : function(data) {
-			alert(migrated_tables)
+			//alert(migrated_tables)
 			var current_table = data.current_table;//Table that has just been migrated
 			var source_table = data.source_table;
 			var count = data.count; //Total number of migrated data
