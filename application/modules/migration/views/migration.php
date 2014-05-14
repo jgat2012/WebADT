@@ -99,3 +99,5 @@
 	  </div>
 </div>
 
+	
+	<script src="<?php echo base_url();?>assets/scripts/migration.js"></script>

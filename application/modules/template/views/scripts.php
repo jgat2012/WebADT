@@ -1,13 +1,3 @@
-<!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)-->
-	<script src="<?php echo base_url();?>assets/scripts/plugin/pace/pace.min.js"></script>
-
-    <!-- Link to Google CDN's jQuery + jQueryUI; fall back to local -->
-    <script src="<?php echo base_url();?>assets/scripts/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-	<script> if (!window.jQuery) { document.write('<script src="<?php echo base_url();?>assets/scripts/libs/jquery-2.0.2.min.js"><\/script>');} </script>
-
-    <script src="<?php echo base_url();?>assets/scripts/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-	<script> if (!window.jQuery.ui) { document.write('<script src="<?php echo base_url();?>assets/scripts/libs/jquery-ui-1.10.3.min.js"><\/script>');} </script>
-
 	<!-- JS TOUCH : include this plugin for mobile drag / drop touch events 		
 	<script src="js/plugin/jquery-touch/jquery.ui.touch-punch.min.js"></script> -->
 
@@ -57,10 +47,22 @@
 		
 	<![endif]-->
 	
-	<script src="<?php echo base_url();?>assets/scripts/migration.js"></script>
-	
 	<!-- MAIN APP JS FILE -->
 	<script src="<?php echo base_url();?>assets/scripts/general.js"></script>
+	
+	<!-- DATATABLES JS -->
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/jquery.dataTables-cust.min.js"></script>
+	
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/ColReorder.min.js"></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/FixedColumns.min.js"></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/ColVis.min.js"></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/ZeroClipboard.js"></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/TableTools.min.js"></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/DT_bootstrap.js"></script>
+	
+	<!-- CUSTOMIZED DATATABLES JS -->
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/datatables_customized.js"></script>
+	
 
 	<script type="text/javascript">
 		runAllForms();
@@ -112,5 +114,7 @@
 			enableCaseInsensitiveFiltering : true,
 			filterPlaceholder : 'Search'
 		});
+		runDataTables();
+		
 	  });
 	</script>
