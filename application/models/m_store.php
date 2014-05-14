@@ -19,7 +19,7 @@ class M_Store extends My_Model {
 	}
 
 	public function getStoreType($ccc_id){
-		$stores = $this -> em -> createQuery('SELECT c.store FROM models\Entities\CccStoreServicePoint c WHERE c.active=1 AND c.id="'.$ccc_id);
+		$stores = $this -> em -> createQuery('SELECT c.store FROM models\Entities\CccStoreServicePoint c WHERE c.active=1 AND c.id='.$ccc_id);
 		$stores = $stores -> getArrayResult();
 		return $stores[0];
 	}

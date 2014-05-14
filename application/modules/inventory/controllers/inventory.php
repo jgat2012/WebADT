@@ -119,16 +119,11 @@ class Inventory extends MY_Controller {
 			            'iTotalDisplayRecords' => $iFilteredTotal, 
 			            'aaData' => array());
 
-		//loop through data to append options such as 
+		//loop through data to append options such as bin card
 		foreach ($rResult->result_array() as $aRow) {
 			$row = array();
 			foreach ($aColumns as $col) {
-				//format Stock On Hand i.e bold & green
-				if ($col == "stock_level") {
-					$row[] = '<b style="color:green">' . number_format($aRow['stock_level']) . '</b>';
-				} else {
 					$row[] = $aRow[$col];
-				}
 			}
 			//append bin card options to each drug
 			$drug_id = $aRow['id'];
@@ -136,7 +131,7 @@ class Inventory extends MY_Controller {
 			$row[]=anchor('inventory/getDrugBinCard/'.$drug_id.'/'.$ccc_id, 'Bin Card', $param);
 			$output['aaData'][] = $row;
 		}
-        return $output;
+        echo json_encode($output,JSON_PRETTY_PRINT);
 	}
 
 	public function getDrugBinCard($drug_id='',$ccc_id=''){
@@ -169,17 +164,45 @@ class Inventory extends MY_Controller {
 
 
 	public function getDrugStockLevels($drug_id='',$ccc_id=''){
+	   $facility_code=$this->session->userdata("facility");
        //get ccc_store type if store or pharmacy
 	   $this->load->model('m_store');
 	   $store = $this -> m_store -> getStoreType($ccc_id);
 
 	   if($store==1){
-	   	 //is a store
+	   	//is a store
+	   	$this->load->model('m_facility');
+	   	//check facility type e.g 0=>satellite site,1=>standalone site,(>1)=>central site and assign column
+	   	$facility_type=$this->m_facility->getType($facility_code);
+			if ($facility_type == 0) {
+				$column = "dispensed_units";
+				$code = 2;
+			} else if ($facility_type == 1) {
+				$column = "dispensed_packs";
+				$code = 3;
+			} else if ($facility_type > 1) {
+				$column = "aggr_consumed";
+				$code = 0;
+			}
+		//get facility_id 	
+        $this->load->model('m_sync_facility');
+	   	$facilities=$this->m_sync_facility->getId($facility_code, $code);
+	   	$facility_id = $facilities['id'];
+	   	//get consumption for last three months
+	    $this->load->model('m_cdrr');
+	    $three_months_consumption = $this -> m_cdrr -> getDrugConsumption($drug_id,$facility_id);
 	   }else {
-	   	 //is a pharmacy
+	   	//is a pharmacy
+	   	$this->load->model('m_drug_transactions');
+	    $three_months_consumption = $this -> m_drug_transactions -> getDrugConsumption($drug_id,$ccc_id);
 	   }
+	   //get consumption summary
+	   $data['maximum_consumption'] = number_format($three_months_consumption);
+	   $data['avg_consumption'] = number_format((($three_months_consumption) / 3));
+	   $data['minimum_consumption'] = number_format(($three_months_consumption) * 1.5);
+	   echo json_encode($data,JSON_PRETTY_PRINT);
 	}
-	public function getDrugTransactions($drug_id='',$ccc_id=''){
+	public function getDrugTransactions($drug_id='4',$ccc_id='2'){
 		$iDisplayStart = $this -> input -> get_post('iDisplayStart', true);
 		$iDisplayLength = $this -> input -> get_post('iDisplayLength', true);
 		$iSortCol_0 = $this -> input -> get_post('iSortCol_0', false);
@@ -191,9 +214,11 @@ class Inventory extends MY_Controller {
         $aColumns = array('Order_Number', 
         	              'Transaction_Date', 
         	              't.name as Transaction_Type', 
+        	              't.effect',
         	              'Batch_Number', 
-        	              'ds.Source', 
-        	              'ds.Destination', 
+        	              'd.name as destination_name', 
+        	              's.name as source_name', 
+        	              'source_destination',
         	              'Expiry_Date', 
         	              'Pack_Size', 
         	              'Packs', 
@@ -207,7 +232,7 @@ class Inventory extends MY_Controller {
 
 		// Paging
 		if (isset($iDisplayStart) && $iDisplayLength != '-1') {
-			$this -> db -> limit($this -> db -> escape_str($iDisplayLength), $this -> db -> escape_str($iDisplayStart));
+			//$this -> db -> limit($this -> db -> escape_str($iDisplayLength), $this -> db -> escape_str($iDisplayStart));
 		}
 
 		// Ordering
@@ -234,7 +259,74 @@ class Inventory extends MY_Controller {
 			}
 		}
 
+		//data
+		$this -> db -> select('SQL_CALC_FOUND_ROWS ' . str_replace(' , ', ' ', implode(', ', $aColumns)), false);
+	    $this -> db -> select('t.effect');
+	    $this -> db -> from("drug_stock_movement ds");
+		$this -> db -> join("drugcode dc", "dc.id=ds.drug", "left");
+		$this -> db -> join("transaction_type t", "t.id=ds.transaction_type","left");
+		$this -> db -> join("drug_source s", "s.id=ds.source_destination", "left");
+		$this -> db -> join("drug_destination d", "d.id=ds.source_destination","left");
+		$this -> db -> where("ds.drug", $drug_id);
+		$this -> db -> where("ds.ccc_store_sp", $ccc_id);
+		$this -> db -> order_by('ds.id', 'desc');
+		$rResult = $this -> db -> get();
 
+		// Data set length after filtering
+		$this -> db -> select('FOUND_ROWS() AS found_rows');
+		$iFilteredTotal = $this -> db -> get() -> row() -> found_rows;
+
+		// Total data set length
+		$this -> db -> select("ds.*");
+	    $this -> db -> from("drug_stock_movement ds");
+		$this -> db -> join("drugcode dc", "dc.id=ds.drug", "left");
+		$this -> db -> join("transaction_type t", "t.id=ds.transaction_type","left");
+		$this -> db -> join("drug_source s", "s.id=ds.source_destination", "left");
+		$this -> db -> join("drug_destination d", "d.id=ds.source_destination","left");
+		$this -> db -> where("ds.drug", $drug_id);
+		$this -> db -> where("ds.ccc_store_sp", $ccc_id);
+		$total = $this -> db -> get();
+		$iTotal = count($total -> result_array());
+
+		// Output
+		$output = array('sEcho' => intval($sEcho), 
+			            'iTotalRecords' => $iTotal, 
+			            'iTotalDisplayRecords' => $iFilteredTotal, 
+			            'aaData' => array());
+
+		//loop through data to change transaction type
+		foreach ($rResult->result() as $drug_transaction) {
+			$row = array();
+            if($drug_transaction->effect==1){
+            	//quantity_out & destination (means adds stock to system)
+            	$transaction_type=$drug_transaction->Transaction_Type;
+            	$qty=$drug_transaction->Quantity;
+            	if($drug_transaction->destination_name!="" || $drug_transaction->destination_name !=0){
+            		$transaction_type=$drug_transaction->Transaction_Type."(".$drug_transaction->source_destination.")";
+            	}
+            }else{
+            	//quantity & source (means removes stock from system)
+            	$transaction_type=$drug_transaction->Transaction_Type;
+            	$qty=$drug_transaction->Quantity_Out;
+            	if($drug_transaction->source_name!="" || $drug_transaction->source_name !=0){
+            		$transaction_type=$drug_transaction->Transaction_Type."(".$drug_transaction->source_destination.")";
+            	}
+            }
+      
+			$row[] = $drug_transaction -> Order_Number;
+			$row[] = date('d-M-Y', strtotime($drug_transaction -> Transaction_Date));
+			$row[] = $transaction_type;
+			$row[] = $drug_transaction -> Batch_Number;
+			$row[] = date('d-M-Y', strtotime($drug_transaction -> Expiry_Date));
+			$row[] = $drug_transaction -> Pack_Size;
+			$row[] = $drug_transaction -> Packs;
+			$row[] = $qty;
+			$row[] = number_format($drug_transaction -> Balance);
+			$row[] = $drug_transaction -> Unit_Cost;
+			$row[] = $drug_transaction -> Amount;
+			$output['aaData'][] = $row;
+		}
+		echo json_encode($output,JSON_PRETTY_PRINT);
 	}
 
 	public function base_params($data){
