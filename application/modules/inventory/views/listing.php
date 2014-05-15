@@ -8,8 +8,27 @@
 		</header>
 		<div class="row">
 		<ul class="nav nav-tabs" class="sub_menus">
-		  <li class="active"><a href="#">Main Store</a></li>
-		  <li><a href="#">Main Pharmacy</a></li>
+			<?php
+			//Loop through each ccc store/pharmacy and display it;
+			foreach($ccc_stores as $ccc_store){
+				$name = $ccc_store['name'];
+				$pos1 = stripos($name, 'main pharmacy');//Check if Main Pharmacy exists
+				$pos2 = stripos($name, 'pharmacy');//If Main Pharmacy doesn't exist, Check if Pharmacy exists
+				
+				$class_active = '';
+				if ($pos1 === false) {//If Main Pharmacy is not among the list, check for Pharmacy
+					$class_active = '';
+					if ($pos2 === true) {//If Pharmacy exists (Person logged in as a CCC Store)
+						$class_active = 'active';
+					}else{
+						$class_active = '';
+					}
+				}else{
+					$class_active = 'active';
+				}
+				echo '<li class="'.$class_active.'"><a href="#">'.$name.'</a></li>';
+			}
+			?>
 		</ul>
 	</div>
 		<div>
@@ -26,60 +45,18 @@
 						<article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 							<div class="widget-body no-padding">
 								
-								<table id="datatable_fixed_column" class="table table-striped table-bordered table-hover smart-form">
+								<table id="inventory_table" class="table table-striped table-bordered table-hover smart-form">
 									<thead>
 										<tr>
 											<th>Commodity</th><th>Generic Name</th><th>Qty /SOH</th><th>Unit</th><th>Pack Size</th><th>Supplier</th><th>Dose</th><th>Action</th>
 										</tr>
-										<tr class="second">
-									<td>
-										<label class="input">
-											<input type="text" name="search_commodity" placeholder="Filter Commodity" class="search_init">
-										</label>
-									</td>
-									<td>
-										<label class="input">
-											<input type="text" name="search_generic_name" placeholder="Filter Generic Name" class="search_init">
-										</label>	
-									</td>
-									<td>
-										<label class="input">
-											<input type="text" name="search_stock" placeholder="Filter SOH" class="search_init">
-										</label>	
-									</td>
-									<td>
-										<label class="input">
-											<input type="text" name="search_unit" placeholder="Filter Unit" class="search_init">
-										</label>	
-									</td>
-									<td>
-										<label class="input">
-											<input type="text" name="search_pack_size" placeholder="Filter Pack size" class="search_init">
-										</label>	
-									</td>
-									
-									<td>
-										<label class="input">
-											<input type="text" name="search_supplier" placeholder="Filter Supplier" class="search_init">
-										</label>	
-									</td>
-									<td>
-										<label class="input">
-											<input type="text" name="search_dose" placeholder="Filter Dose" class="search_init">
-										</label>	
-									</td>
-									<td>
-										<label class="input">
-											<input type="text" name="" placeholder="No filter" class="col-sm-8" disabled="">
-										</label>
-									</td>
-								</tr>
-										
 									</thead>
-									<tbody>
-										<tr class="odd"><td class=" sorting_1">3TC 150MG</td><td class="">LAMIVUDINE</td><td class=""><b style="color:green">0</b></td><td class="">Tablet</td><td class=""></td><td class="">ccc_store_knh store</td><td class="">1BD</td><td class=""><a href="http://localhost/ADT/inventory_management/view_bin_card/1/1">Bin Card</a></td></tr>
-										<tr class="odd"><td class=" sorting_1">3TC 150MG</td><td class="">NEVIRAPINE</td><td class=""><b style="color:green">0</b></td><td class="">Tablet</td><td class=""></td><td class="">ccc_store_knh store</td><td class="">1BD</td><td class=""><a href="http://localhost/ADT/inventory_management/view_bin_card/1/1">Bin Card</a></td></tr>
-									</tbody>
+									<tbody></tbody>
+									<tfoot>
+										<tr>
+											<th>Commodity</th><th>Generic Name</th><th>Qty /SOH</th><th>Unit</th><th>Pack Size</th><th>Supplier</th><th>Dose</th><th>Action</th>
+										</tr>
+							       </tfoot>
 								</table>
 							</div>
 						</article>
@@ -92,5 +69,21 @@
 	
 	
 </div>
+<!-- DATATABLES JS -->
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/jquery.dataTables-cust.min.js"></script>
+	
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/ColReorder.min.js"></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/FixedColumns.min.js"></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/ColVis.min.js"></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/ZeroClipboard.js"></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/TableTools.min.js"></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/DT_bootstrap.js"></script>
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/plugin/datatables/columnFilter.js"></script>
+	<!-- CUSTOMIZED DATATABLES JS -->
+	<script type="text/javascript" src="<?php echo base_url();?>assets/scripts/datatables_customized.js"></script>
 
 <!-- Run customized datables -->
+<script src="<?php echo base_url();?>assets/scripts/inventory.js"></script>
+<script type="text/javascript">
+	runDataTable('inventory_table');
+</script>
