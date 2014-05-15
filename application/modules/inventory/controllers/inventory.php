@@ -5,8 +5,6 @@ class Inventory extends MY_Controller {
 	}
 
 	public function index() {
-		//get all active ccc_stores/pharmacies in the facility
-		$data['ccc_stores']=$this->getPharmacies();
 		$data['content_view']='inventory/listing';
 		$this->base_params($data);
 	}
@@ -175,12 +173,15 @@ class Inventory extends MY_Controller {
 	   	//check facility type e.g 0=>satellite site,1=>standalone site,(>1)=>central site and assign column
 	   	$facility_type=$this->m_facility->getType($facility_code);
 			if ($facility_type == 0) {
+				//satellite
 				$column = "dispensed_units";
 				$code = 2;
 			} else if ($facility_type == 1) {
+				//standalone
 				$column = "dispensed_packs";
 				$code = 3;
 			} else if ($facility_type > 1) {
+				//central site
 				$column = "aggr_consumed";
 				$code = 0;
 			}
@@ -232,7 +233,7 @@ class Inventory extends MY_Controller {
 
 		// Paging
 		if (isset($iDisplayStart) && $iDisplayLength != '-1') {
-			//$this -> db -> limit($this -> db -> escape_str($iDisplayLength), $this -> db -> escape_str($iDisplayStart));
+			$this -> db -> limit($this -> db -> escape_str($iDisplayLength), $this -> db -> escape_str($iDisplayStart));
 		}
 
 		// Ordering
@@ -327,6 +328,21 @@ class Inventory extends MY_Controller {
 			$output['aaData'][] = $row;
 		}
 		echo json_encode($output,JSON_PRETTY_PRINT);
+	}
+
+	public function stock_transaction($ccc_id){
+		//get transaction types
+		$this->load->model('m_transcation_types');
+		$data['transactions']=$this->m_transcation_types->getActive();
+		//get drug sources
+		$this->load->model('m_drug_source');
+		$data['sources']=$this->m_drug_source->getActive();
+		//get drug destinations
+		$this->load->model('m_drug_destination');
+		$data['destinations']=$this->m_drug_destination->getActive();
+        $data['hide_sidemenu']='';
+		$data['content_view']='inventory/transaction';
+		$this->base_params($data);
 	}
 
 	public function base_params($data){
