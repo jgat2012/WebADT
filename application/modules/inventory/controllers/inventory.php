@@ -5,6 +5,7 @@ class Inventory extends MY_Controller {
 	}
 
 	public function index() {
+		$data['ccc_stores']=$this->getPharmacies();
 		$data['content_view']='inventory/listing';
 		$this->base_params($data);
 	}

@@ -133,7 +133,7 @@ class Migration extends MY_Controller {
 			 		'drug_in_use',
 			 		'supplied',
  	            	'ccc_store_sp'),
-			 	 'conditions'=>'WHERE genericname is not null',
+			 	 'conditions'=>'',
 			 	 'before'=>array(
 			 	 	'0'=>'UPDATE '.$source_database.'.tblarvdrugstockmain d,'.$source_database.'.tblgenericname g
 			 	 	      SET d.genericname=g.genericname
@@ -313,8 +313,8 @@ class Migration extends MY_Controller {
  	             	      AND rc.ccc_store_sp='.$ccc_pharmacy.'
  	             	      AND r.ccc_store_sp='.$ccc_pharmacy,
 	         	    '1'=>'UPDATE regimen r,regimen_service_type rst
-	         	          SET r.category=rst.id 
-	         	          WHERE r.category=rst.name
+	         	          SET r.type_of_service=rst.id 
+	         	          WHERE r.type_of_service=rst.name
 	         	          AND rst.ccc_store_sp='.$ccc_pharmacy.'
 	         	          AND r.ccc_store_sp='.$ccc_pharmacy)
 			 	), 
@@ -553,7 +553,8 @@ class Migration extends MY_Controller {
 			 		'1',
 			 		'1',
 			 		'"'.$timestamp.'"',
- 	            	$ccc_pharmacy),
+ 	            	$ccc_pharmacy,
+ 	            	'1'),
 			 	'destination'=>'users',
 			 	'destination_columns'=>array(
 			 		'Name',
@@ -564,7 +565,8 @@ class Migration extends MY_Controller {
 			 		'Active',
 			 		'Created_By',
 			 		'Time_Created',
- 	            	'ccc_store_sp'),
+ 	            	'ccc_store_sp',
+					'Signature'),
 			 	'conditions'=>'',
 			 	'before'=>array(),
  	            'update'=>array(
