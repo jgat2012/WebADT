@@ -73,3 +73,18 @@ position: relative;
 	margin-left:1%;
 	margin-right:1%;
 }
+#bin_card_holder{
+	padding:2%;
+	background-color:#D6DFEC;
+}
+.bin_card_heading{
+	color:red !important;
+	font-weight: bolder !important;
+}
+.border-bottom{
+	border-bottom: 1px solid ;
+}
+.margin-2{
+	
+	margin:2%;
+}

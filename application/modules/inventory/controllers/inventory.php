@@ -53,13 +53,16 @@ class Inventory extends MY_Controller {
 		//Filtering
 		$sFilter = "";
 		$c = 0;
+		
 		if (isset($sSearch) && !empty($sSearch)) {
 			$sFilter = "AND ( ";
 			for ($i = 0; $i < count($aColumns); $i++) {
 				$bSearchable = $this -> input -> get_post('bSearchable_' . $i, true);
+				
 
 				// Individual column filtering
 				if (isset($bSearchable) && $bSearchable == 'true') {
+					
 						if ($c != 0) {
 							$sFilter .= " OR ";
 						}
@@ -72,6 +75,29 @@ class Inventory extends MY_Controller {
 			if ($sFilter == "AND ( )") {
 				$sFilter = "";
 			}
+		}else{//Individual Column filtering
+			$sFilter = "AND ( ";
+			for ($i = 0; $i < count($aColumns); $i++) {//Looping trough each column to find out which ones are being filtered
+				
+				$bSearchable = $this -> input -> get_post('bSearchable_' . $i, true);
+				$sSearch_ = $this -> input -> get_post('sSearch_' . $i, true);//Get data entered for individual column filtering
+				
+				if (isset($bSearchable) && $bSearchable == 'true' && !empty($sSearch_)) {//Check if current column if being filtered
+						
+						if ($c != 0) {
+							$sFilter .= " AND ";
+						}
+						$c = 1;
+						
+						$sSearch = mysql_real_escape_string($sSearch_);
+						$sFilter .= "`" . $aColumns[$i] . "` LIKE '%" . $sSearch_ . "%'";
+				}
+			}
+			$sFilter .= " )";
+			if ($sFilter == "AND ( )") {
+				$sFilter = "";
+			}
+			//echo $sFilter;
 		}
 
 		// Data set length after filtering
@@ -99,7 +125,7 @@ class Inventory extends MY_Controller {
 				       dc.dose
 				FROM drugcode dc
 				LEFT JOIN generic_name g ON g.id = dc.generic_name
-				LEFT JOIN drug_source s ON s.id = dc.supported_by
+				LEFT JOIN suppliers s ON s.id = dc.supported_by
 				LEFT JOIN dose d ON d.Name = dc.dose
 				LEFT JOIN drug_unit du ON du.id = dc.unit
 				LEFT JOIN (SELECT * 
@@ -137,7 +163,7 @@ class Inventory extends MY_Controller {
 		//get drug information
         $this->load->model('m_drug');
         $drug=$this->m_drug->getDrug($drug_id,$ccc_id);
-        if($drugs){
+        if($drug){
         	$data['commodity']=$drug['drug'];
         	$data['unit']=$drug['drugunit'];
         }
@@ -155,6 +181,7 @@ class Inventory extends MY_Controller {
                 $total_stock=$total_stock+$batch[$counter]['balance'];
         	}
         }
+		$data['hide_sidemenu']='';
         $data['total_stock']=$total_stock;
         $data['batches']=$drug_batches;
 		$data['content_view']='inventory/bincard';

@@ -1,6 +1,6 @@
 function runDataTable(table_id) {
 	
-	var oTable = $('#'+table_id+'').dataTable({
+	var oTable = $('#'+table_id+'').dataTable({//Inventory Listing table
 		"sDom" : "<'dt-top-row'><'dt-wrapper't><'dt-row dt-bottom-row'<'row'<'col-sm-6'i><'col-sm-6 text-right'p>>",
 		//"sDom" : "t<'row dt-wrapper'<'col-sm-6'i><'dt-row dt-bottom-row'<'row'<'col-sm-6'i><'col-sm-6 text-right'>>",
 		"oLanguage" : {
@@ -21,12 +21,12 @@ function runDataTable(table_id) {
         { "sWidth": "10%" },
         { "sWidth": "10%" },
         { "sWidth": "5%", "sClass": "center", "bSortable": false }],
-        "aoColumnDefs": [ { "bSearchable": true, "aTargets": [0,1,4,5] }, { "bSearchable": false, "aTargets": [ "_all" ] } ]
+        "aoColumnDefs": [ { "bSearchable": true, "aTargets": [0,4,5] }, { "bSearchable": false, "aTargets": [ "_all" ] } ]
  
 	});		
 	oTable.columnFilter({ 
          /*	sPlaceHolder: "head:after",*/
-         	aoColumns: [{ type: "text"},{ type: "text" },null,null,{ type: "text" },{ type: "text" },null]}
+         	aoColumns: [{ type: "text"},null,null,null,{ type: "text" },{ type: "text" },null]}
     );
 
 }

@@ -27,7 +27,10 @@ class M_Drug extends My_Model {
              AND du.ccc_store_sp='$ccc_id'";
        $query=$this->db->query($sql);
        $drugs=$query->result_array();
-       return $drugs[0];
+	   if($drugs){
+	   	return $drugs[0];
+	   }
+       
 	}
 
     public function getDrugBatches($drug_id,$ccc_id){
